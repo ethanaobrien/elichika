@@ -40,8 +40,8 @@ type LiveNoteWaveGimmickGroup struct {
 	SkillID          int
 }
 
-func (this *LiveDifficultyNoteGimmick) populate() {
+func (ldng *LiveDifficultyNoteGimmick) populate() {
 	var err error
-	this.ID, err = strconv.Atoi(this.Name[len(this.Name)-8:])
+	ldng.ID, err = strconv.Atoi(ldng.Name[len(ldng.Name)-8:])
 	utils.CheckErr(err)
 }

@@ -10,10 +10,10 @@ import (
 type LiveDifficultyNoteGimmick struct {
 }
 
-func (_ *LiveDifficultyNoteGimmick) Table() string {
+func (*LiveDifficultyNoteGimmick) Table() string {
 	return "m_live_difficulty_note_gimmick"
 }
-func (_ *LiveDifficultyNoteGimmick) ID(fields []parser.Field) int64 {
+func (*LiveDifficultyNoteGimmick) ID(fields []parser.Field) int64 {
 	if fields[0].Key != "live_difficulty_id" {
 		panic("wrong field order")
 	}
@@ -23,16 +23,17 @@ func (_ *LiveDifficultyNoteGimmick) ID(fields []parser.Field) int64 {
 	liveID, err := strconv.ParseInt(fields[0].Value, 10, 64)
 	utils.CheckErr(err)
 	noteID, err := strconv.ParseInt(fields[1].Value, 10, 64)
+	utils.CheckErr(err)
 	return liveID*1000 + noteID
 }
-func (_ *LiveDifficultyNoteGimmick) Value(field parser.Field) string {
+func (*LiveDifficultyNoteGimmick) Value(field parser.Field) string {
 	return field.Value
 }
-func (this *LiveDifficultyNoteGimmick) Update(field parser.Field) string {
-	return field.Key + "=" + this.Value(field)
+func (ldng *LiveDifficultyNoteGimmick) Update(field parser.Field) string {
+	return field.Key + "=" + ldng.Value(field)
 }
-func (this *LiveDifficultyNoteGimmick) Condition(fields []parser.Field) string {
-	return this.Update(fields[0])
+func (ldng *LiveDifficultyNoteGimmick) Condition(fields []parser.Field) string {
+	return ldng.Update(fields[0])
 }
 
 func handleLiveDifficultyNoteGimmickEvent(event parser.ModifierEvent[LiveDifficultyNoteGimmick]) {

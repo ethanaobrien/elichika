@@ -32,15 +32,15 @@ type TowerFloor struct {
 	TowerProgressRewards  []model.Content `xorm:"-"` // from: m_tower_progress_reward
 }
 
-func (this *TowerFloor) populate(gamedata *Gamedata, masterdata_db, serverdata_db *xorm.Session, dictionary *dictionary.Dictionary) {
-	if this.TowerClearRewardID != nil {
-		err := masterdata_db.Table("m_tower_clear_reward").Where("tower_clear_reward_id = ?", *this.TowerClearRewardID).
-			Find(&this.TowerClearRewards)
+func (tf *TowerFloor) populate(gamedata *Gamedata, masterdata_db, serverdata_db *xorm.Session, dictionary *dictionary.Dictionary) {
+	if tf.TowerClearRewardID != nil {
+		err := masterdata_db.Table("m_tower_clear_reward").Where("tower_clear_reward_id = ?", *tf.TowerClearRewardID).
+			Find(&tf.TowerClearRewards)
 		utils.CheckErr(err)
 	}
-	if this.TowerProgressRewardID != nil {
-		err := masterdata_db.Table("m_tower_progress_reward").Where("tower_progress_reward_id = ?", *this.TowerProgressRewardID).
-			Find(&this.TowerProgressRewards)
+	if tf.TowerProgressRewardID != nil {
+		err := masterdata_db.Table("m_tower_progress_reward").Where("tower_progress_reward_id = ?", *tf.TowerProgressRewardID).
+			Find(&tf.TowerProgressRewards)
 		utils.CheckErr(err)
 	}
 }
@@ -66,14 +66,14 @@ type Tower struct {
 	// BackgroundAssetPath string `xorm:"'background_asset_path'"`
 }
 
-func (this *Tower) populate(gamedata *Gamedata, masterdata_db, serverdata_db *xorm.Session, dictionary *dictionary.Dictionary) {
-	err := masterdata_db.Table("m_tower_composition").Where("tower_id = ?", this.TowerID).OrderBy("floor_no").Find(&this.Floor)
+func (t *Tower) populate(gamedata *Gamedata, masterdata_db, serverdata_db *xorm.Session, dictionary *dictionary.Dictionary) {
+	err := masterdata_db.Table("m_tower_composition").Where("tower_id = ?", t.TowerID).OrderBy("floor_no").Find(&t.Floor)
 	utils.CheckErr(err)
-	this.FloorCount = len(this.Floor)
-	this.Floor = append([]TowerFloor{TowerFloor{}}, this.Floor...)
-	for i := range this.Floor {
-		this.Floor[i].populate(gamedata, masterdata_db, serverdata_db, dictionary)
-		this.IsVoltageRanked = this.IsVoltageRanked || (this.Floor[i].TowerCellType == enum.TowerCellTypeBonusLive)
+	t.FloorCount = len(t.Floor)
+	t.Floor = append([]TowerFloor{TowerFloor{}}, t.Floor...)
+	for i := range t.Floor {
+		t.Floor[i].populate(gamedata, masterdata_db, serverdata_db, dictionary)
+		t.IsVoltageRanked = t.IsVoltageRanked || (t.Floor[i].TowerCellType == enum.TowerCellTypeBonusLive)
 	}
 }
 

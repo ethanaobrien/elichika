@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	presetDataPath = "assets/preset/"
+	presetDataPath = "presets/"
 )
 
 func SignResp(ctx *gin.Context, body, key string) (resp string) {

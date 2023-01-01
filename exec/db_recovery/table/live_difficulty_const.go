@@ -10,10 +10,10 @@ import (
 type LiveDifficultyConst struct {
 }
 
-func (_ *LiveDifficultyConst) Table() string {
+func (*LiveDifficultyConst) Table() string {
 	return "m_live_difficulty_const"
 }
-func (_ *LiveDifficultyConst) ID(fields []parser.Field) int64 {
+func (*LiveDifficultyConst) ID(fields []parser.Field) int64 {
 	if fields[0].Key != "id" {
 		panic("wrong field order")
 	}
@@ -21,14 +21,14 @@ func (_ *LiveDifficultyConst) ID(fields []parser.Field) int64 {
 	utils.CheckErr(err)
 	return id
 }
-func (_ *LiveDifficultyConst) Value(field parser.Field) string {
+func (*LiveDifficultyConst) Value(field parser.Field) string {
 	return field.Value
 }
-func (this *LiveDifficultyConst) Update(field parser.Field) string {
-	return field.Key + "=" + this.Value(field)
+func (ldc *LiveDifficultyConst) Update(field parser.Field) string {
+	return field.Key + "=" + ldc.Value(field)
 }
-func (this *LiveDifficultyConst) Condition(fields []parser.Field) string {
-	return this.Update(fields[0])
+func (ldc *LiveDifficultyConst) Condition(fields []parser.Field) string {
+	return ldc.Update(fields[0])
 }
 
 func handleLiveDifficultyConstEvent(event parser.ModifierEvent[LiveDifficultyConst]) {

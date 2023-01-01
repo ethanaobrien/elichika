@@ -49,8 +49,8 @@ func addLocale(path, language, masterVersion, startUpKey string) {
 
 func init() {
 	Locales = make(map[string](*Locale))
-	addLocale(config.GlDatabasePath, "en", config.MasterVersionGl, config.GlStartUpKey)
-	addLocale(config.GlDatabasePath, "zh", config.MasterVersionGl, config.GlStartUpKey)
-	addLocale(config.GlDatabasePath, "ko", config.MasterVersionGl, config.GlStartUpKey)
-	addLocale(config.JpDatabasePath, "ja", config.MasterVersionJp, config.JpStartUpKey)
+	addLocale(config.GlMasterdataPath, "en", config.MasterVersionGl, config.GlStartUpKey)
+	addLocale(config.GlMasterdataPath, "zh", config.MasterVersionGl, config.GlStartUpKey)
+	addLocale(config.GlMasterdataPath, "ko", config.MasterVersionGl, config.GlStartUpKey)
+	addLocale(config.JpMasterdataPath, "ja", config.MasterVersionJp, config.JpStartUpKey)
 }

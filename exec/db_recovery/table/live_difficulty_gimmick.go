@@ -10,10 +10,10 @@ import (
 type LiveDifficultyGimmick struct {
 }
 
-func (_ *LiveDifficultyGimmick) Table() string {
+func (*LiveDifficultyGimmick) Table() string {
 	return "m_live_difficulty_gimmick"
 }
-func (_ *LiveDifficultyGimmick) ID(fields []parser.Field) int64 {
+func (*LiveDifficultyGimmick) ID(fields []parser.Field) int64 {
 	if fields[0].Key != "id" {
 		panic("wrong field order")
 	}
@@ -21,14 +21,14 @@ func (_ *LiveDifficultyGimmick) ID(fields []parser.Field) int64 {
 	utils.CheckErr(err)
 	return id
 }
-func (_ *LiveDifficultyGimmick) Value(field parser.Field) string {
+func (*LiveDifficultyGimmick) Value(field parser.Field) string {
 	return field.Value
 }
-func (this *LiveDifficultyGimmick) Update(field parser.Field) string {
-	return field.Key + "=" + this.Value(field)
+func (ldg *LiveDifficultyGimmick) Update(field parser.Field) string {
+	return field.Key + "=" + ldg.Value(field)
 }
-func (this *LiveDifficultyGimmick) Condition(fields []parser.Field) string {
-	return this.Update(fields[0])
+func (ldg *LiveDifficultyGimmick) Condition(fields []parser.Field) string {
+	return ldg.Update(fields[0])
 }
 
 func handleLiveDifficultyGimmickEvent(event parser.ModifierEvent[LiveDifficultyGimmick]) {

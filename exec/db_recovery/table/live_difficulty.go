@@ -14,10 +14,10 @@ var (
 type LiveDifficulty struct {
 }
 
-func (_ *LiveDifficulty) Table() string {
+func (*LiveDifficulty) Table() string {
 	return "m_live_difficulty"
 }
-func (_ *LiveDifficulty) ID(fields []parser.Field) int64 {
+func (*LiveDifficulty) ID(fields []parser.Field) int64 {
 	if fields[0].Key != "live_difficulty_id" {
 		panic("wrong field order")
 	}
@@ -25,7 +25,7 @@ func (_ *LiveDifficulty) ID(fields []parser.Field) int64 {
 	utils.CheckErr(err)
 	return id
 }
-func (_ *LiveDifficulty) Value(field parser.Field) string {
+func (*LiveDifficulty) Value(field parser.Field) string {
 	if field.Key == "live_3d_asset_master_id" || field.Key == "autoplay_requirement_id" {
 		if field.Value == "\"\"" {
 			return "NULL"
@@ -33,11 +33,11 @@ func (_ *LiveDifficulty) Value(field parser.Field) string {
 	}
 	return field.Value
 }
-func (this *LiveDifficulty) Update(field parser.Field) string {
-	return field.Key + "=" + this.Value(field)
+func (ld *LiveDifficulty) Update(field parser.Field) string {
+	return field.Key + "=" + ld.Value(field)
 }
-func (this *LiveDifficulty) Condition(fields []parser.Field) string {
-	return this.Update(fields[0])
+func (ld *LiveDifficulty) Condition(fields []parser.Field) string {
+	return ld.Update(fields[0])
 }
 
 func handleLiveDifficultyEvent(event parser.ModifierEvent[LiveDifficulty]) {

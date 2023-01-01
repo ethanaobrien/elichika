@@ -6,7 +6,6 @@ import (
 
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sort"
 	"strings"
@@ -130,7 +129,7 @@ func handleDirectory(dir string) {
 	if strings.HasSuffix(dir, ".json") {
 		handleFile(dir)
 	}
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return
 	}
@@ -169,7 +168,6 @@ func main() {
 		return ids[i] < ids[j]
 	})
 
-	originalIDs := []int{}
 	for _, id := range ids {
 		for _, other := range ids {
 			if other == id {
@@ -183,7 +181,6 @@ func main() {
 			}
 		}
 		if stages[id].Original == nil {
-			originalIDs = append(originalIDs, id)
 			fmt.Println("Original map: ", id)
 		}
 	}

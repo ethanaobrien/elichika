@@ -6,6 +6,8 @@ pkg install golang git -y || echo "assuming go and git are already installed"
 # clone the source code
 git clone https://github.com/arina999999997/elichika.git && \
 cd elichika && \
+# get the submodules (i.e. assets and other)
+git submodule update && \
 # build server
 go build && \
 # set the permission

@@ -26,8 +26,11 @@ type MemberLoveStatus struct {
 	RewardLovePoint int `json:"reward_love_point"`
 }
 
-func (obj *MemberLoveStatus) ID() int64 {
-	return int64(obj.CardMasterID)
+func (mls *MemberLoveStatus) ID() int64 {
+	return int64(mls.CardMasterID)
+}
+func (mls *MemberLoveStatus) SetID(id int64) {
+	mls.CardMasterID = int(id)
 }
 
 type LiveResultAchievement struct {
@@ -92,13 +95,17 @@ func handleLiveTypeManual(ctx *gin.Context, req request.LiveFinishRequest, sessi
 	liveDifficultyID := session.UserStatus.LastLiveDifficultyID
 	gamedata := ctx.MustGet("gamedata").(*gamedata.Gamedata)
 	liveDifficulty := gamedata.LiveDifficulty[liveDifficultyID]
-	centerPositions := []int{}
+	isCenter := map[int]bool{}
 	for _, memberMapping := range liveDifficulty.Live.LiveMemberMapping {
-		if memberMapping.IsCenter {
-			centerPositions = append(centerPositions, memberMapping.Position)
+		if memberMapping.IsCenter && (memberMapping.Position <= 9) {
+			isCenter[memberMapping.Position-1] = true
 		}
 	}
-	rewardCenterLovePoint := klab.CenterBondGainBasedOnBondGain(liveDifficulty.RewardBaseLovePoint) / len(centerPositions)
+	rewardCenterLovePoint := 0
+	if len(isCenter) != 0 {
+		// liella songs have no center
+		rewardCenterLovePoint = klab.CenterBondGainBasedOnBondGain(liveDifficulty.RewardBaseLovePoint) / len(isCenter)
+	}
 
 	// record this live
 	liveRecord := session.GetLiveDifficulty(session.UserStatus.LastLiveDifficultyID)
@@ -186,10 +193,9 @@ func handleLiveTypeManual(ctx *gin.Context, req request.LiveFinishRequest, sessi
 
 		// update card stat and member bond if cleared
 		if lastPlayDeck.IsCleared {
-			isCenter := (i+1 == centerPositions[0])
-			isCenter = isCenter || ((len(centerPositions) > 1) && (i+1 == centerPositions[1]))
+
 			addedLove := liveDifficulty.RewardBaseLovePoint
-			if isCenter {
+			if isCenter[i] {
 				addedLove += rewardCenterLovePoint
 			}
 

@@ -72,145 +72,145 @@ type LiveDifficulty struct {
 	LiveDifficultyNoteGimmicks []LiveDifficultyNoteGimmick `xorm:"-"`
 }
 
-func (this *LiveDifficulty) populate(gamedata *Gamedata, masterdata_db, serverdata_db *xorm.Session, dictionary *dictionary.Dictionary) {
-	this.Live = gamedata.Live[*this.LiveID]
+func (ld *LiveDifficulty) populate(gamedata *Gamedata, masterdata_db, serverdata_db *xorm.Session, dictionary *dictionary.Dictionary) {
+	ld.Live = gamedata.Live[*ld.LiveID]
 	// 2-way links
-	this.Live.LiveDifficulties = append(this.Live.LiveDifficulties, this)
-	this.LiveID = &gamedata.Live[*this.LiveID].LiveID
-	err := masterdata_db.Table("m_live_difficulty_mission").Where("live_difficulty_master_id = ?", this.LiveDifficultyID).
-		OrderBy("position").Find(&gamedata.LiveDifficulty[this.LiveDifficultyID].Missions)
+	ld.Live.LiveDifficulties = append(ld.Live.LiveDifficulties, ld)
+	ld.LiveID = &gamedata.Live[*ld.LiveID].LiveID
+	err := masterdata_db.Table("m_live_difficulty_mission").Where("live_difficulty_master_id = ?", ld.LiveDifficultyID).
+		OrderBy("position").Find(&gamedata.LiveDifficulty[ld.LiveDifficultyID].Missions)
 	utils.CheckErr(err)
-	// if this.LiveDifficultyID == 9999 || this.LiveDifficultyID/10 == 6000000  {
+	// if ld.LiveDifficultyID == 9999 || ld.LiveDifficultyID/10 == 6000000  {
 	// 	return
 	// }
 
-	this.LiveDifficultyGimmick = new(LiveDifficultyGimmick)
-	exists, err := masterdata_db.Table("m_live_difficulty_gimmick").Where("live_difficulty_master_id = ?", this.LiveDifficultyID).
-		Get(this.LiveDifficultyGimmick)
+	ld.LiveDifficultyGimmick = new(LiveDifficultyGimmick)
+	exists, err := masterdata_db.Table("m_live_difficulty_gimmick").Where("live_difficulty_master_id = ?", ld.LiveDifficultyID).
+		Get(ld.LiveDifficultyGimmick)
 	utils.CheckErr(err)
 
 	if !exists {
 		// doesn't exist for a small set of things that shouldn't matter
-		// panic(fmt.Sprint("gimmick doesn't exist for: ", this.LiveDifficultyID))
-		this.LiveDifficultyGimmick = nil
-		// fmt.Println("gimmick doesn't exist for: ", this.LiveDifficultyID)
+		// panic(fmt.Sprint("gimmick doesn't exist for: ", ld.LiveDifficultyID))
+		ld.LiveDifficultyGimmick = nil
+		// fmt.Println("gimmick doesn't exist for: ", ld.LiveDifficultyID)
 	}
 
-	err = masterdata_db.Table("m_live_difficulty_note_gimmick").Where("live_difficulty_id = ?", this.LiveDifficultyID).
-		Find(&this.LiveDifficultyNoteGimmicks)
+	err = masterdata_db.Table("m_live_difficulty_note_gimmick").Where("live_difficulty_id = ?", ld.LiveDifficultyID).
+		Find(&ld.LiveDifficultyNoteGimmicks)
 	utils.CheckErr(err)
-	for i := range this.LiveDifficultyNoteGimmicks {
-		this.LiveDifficultyNoteGimmicks[i].populate()
+	for i := range ld.LiveDifficultyNoteGimmicks {
+		ld.LiveDifficultyNoteGimmicks[i].populate()
 	}
 }
 
-func (this *LiveDifficulty) loadSimpleLiveStage(gamedata *Gamedata) {
-	if this.SimpleLiveStage != nil {
+func (ld *LiveDifficulty) loadSimpleLiveStage(gamedata *Gamedata) {
+	if ld.SimpleLiveStage != nil {
 		return // already loaded
 	}
-	// fmt.Println("Loading for", this.LiveDifficultyID)
-	liveNotes := utils.ReadAllText(fmt.Sprintf("assets/simple_stages/%d.json", this.LiveDifficultyID))
-	if (liveNotes == "") || (this.UnlockPattern == enum.LiveUnlockPatternTowerOnly) {
+	// fmt.Println("Loading for", ld.LiveDifficultyID)
+	liveNotes := utils.ReadAllText(fmt.Sprintf("assets/simple_stages/%d.json", ld.LiveDifficultyID))
+	if (liveNotes == "") || (ld.UnlockPattern == enum.LiveUnlockPatternTowerOnly) {
 
 		// song doesn't exist, use rule to find the original map
-		if this.UnlockPattern != enum.LiveUnlockPatternTowerOnly {
+		if ld.UnlockPattern != enum.LiveUnlockPatternTowerOnly {
 			// only accept event songs, SBL, or DLP
 			return
 		}
-		originalLiveID := this.Live.LiveID%10000 + 10000
+		originalLiveID := ld.Live.LiveID%10000 + 10000
 		for _, other := range gamedata.Live[originalLiveID].LiveDifficulties {
-			if (other.NoteEmitMsec == this.NoteEmitMsec) && (other.LiveDifficultyType == this.LiveDifficultyType) {
+			if (other.NoteEmitMsec == ld.NoteEmitMsec) && (other.LiveDifficultyType == ld.LiveDifficultyType) {
 				other.loadSimpleLiveStage(gamedata)
 				if other.SimpleLiveStage != nil {
-					this.SimpleLiveStage = other.SimpleLiveStage
+					ld.SimpleLiveStage = other.SimpleLiveStage
 					break
 				}
 			}
 		}
-		if this.SimpleLiveStage == nil {
+		if ld.SimpleLiveStage == nil {
 			for _, other := range gamedata.Live[originalLiveID].LiveDifficulties {
-				if other.NoteEmitMsec == this.NoteEmitMsec {
+				if other.NoteEmitMsec == ld.NoteEmitMsec {
 					other.loadSimpleLiveStage(gamedata)
 					if other.SimpleLiveStage != nil {
-						this.SimpleLiveStage = other.SimpleLiveStage
+						ld.SimpleLiveStage = other.SimpleLiveStage
 						break
 					}
 				}
 			}
 		}
 	} else {
-		err := json.Unmarshal([]byte(liveNotes), &this.SimpleLiveStage)
+		err := json.Unmarshal([]byte(liveNotes), &ld.SimpleLiveStage)
 		utils.CheckErr(err)
 	}
-	if this.SimpleLiveStage == nil {
-		panic(fmt.Sprint("Error finding live stage for: ", this.LiveDifficultyID))
+	if ld.SimpleLiveStage == nil {
+		panic(fmt.Sprint("Error finding live stage for: ", ld.LiveDifficultyID))
 	}
-	if this.SimpleLiveStage.Original != nil {
-		_, exists := gamedata.LiveDifficulty[*this.SimpleLiveStage.Original]
+	if ld.SimpleLiveStage.Original != nil {
+		_, exists := gamedata.LiveDifficulty[*ld.SimpleLiveStage.Original]
 		if !exists {
 			fmt.Println("Warning: original live referenced but do not exist in database: ",
-				*this.SimpleLiveStage.Original, ". Attemping to just load the json.")
-			gamedata.LiveDifficulty[*this.SimpleLiveStage.Original] = new(LiveDifficulty)
-			gamedata.LiveDifficulty[*this.SimpleLiveStage.Original].LiveDifficultyID = *this.SimpleLiveStage.Original
-			gamedata.LiveDifficulty[*this.SimpleLiveStage.Original].LiveDifficultyType = this.LiveDifficultyType
+				*ld.SimpleLiveStage.Original, ". Attemping to just load the json.")
+			gamedata.LiveDifficulty[*ld.SimpleLiveStage.Original] = new(LiveDifficulty)
+			gamedata.LiveDifficulty[*ld.SimpleLiveStage.Original].LiveDifficultyID = *ld.SimpleLiveStage.Original
+			gamedata.LiveDifficulty[*ld.SimpleLiveStage.Original].LiveDifficultyType = ld.LiveDifficultyType
 		}
-		gamedata.LiveDifficulty[*this.SimpleLiveStage.Original].loadSimpleLiveStage(gamedata)
-		this.SimpleLiveStage = gamedata.LiveDifficulty[*this.SimpleLiveStage.Original].SimpleLiveStage
+		gamedata.LiveDifficulty[*ld.SimpleLiveStage.Original].loadSimpleLiveStage(gamedata)
+		ld.SimpleLiveStage = gamedata.LiveDifficulty[*ld.SimpleLiveStage.Original].SimpleLiveStage
 	}
-	if this.SimpleLiveStage == nil {
-		panic(fmt.Sprint("Error finding original live stage for: ", this.LiveDifficultyID))
+	if ld.SimpleLiveStage == nil {
+		panic(fmt.Sprint("Error finding original live stage for: ", ld.LiveDifficultyID))
 	}
 }
 
-func (this *LiveDifficulty) ConstructLiveStage(gamedata *Gamedata) {
-	if this.LiveStage != nil { // generated
+func (ld *LiveDifficulty) ConstructLiveStage(gamedata *Gamedata) {
+	if ld.LiveStage != nil { // generated
 		return
 	}
 
 	if !config.GenerateStageFromScratch { // load generated stage, it must exists
-		text := utils.ReadAllText(fmt.Sprintf("assets/stages/%d.json", this.LiveDifficultyID))
+		text := utils.ReadAllText(fmt.Sprintf("assets/stages/%d.json", ld.LiveDifficultyID))
 		if text == "" {
-			panic(fmt.Sprintf("Stage %d doesn't exists in assets/stages"))
+			panic(fmt.Sprintf("Stage %d doesn't exists in assets/stages", ld.LiveDifficultyID))
 		}
-		this.LiveStage = new(model.LiveStage)
-		err := json.Unmarshal([]byte(text), &this.LiveStage)
+		ld.LiveStage = new(model.LiveStage)
+		err := json.Unmarshal([]byte(text), &ld.LiveStage)
 		if err != nil {
-			panic(fmt.Sprintf("Failed to load stage %d: wrong format"))
+			panic(fmt.Sprintf("Failed to load stage %d: wrong format", ld.LiveDifficultyID))
 		}
 		return
 	}
 
-	this.loadSimpleLiveStage(gamedata)
-	if this.SimpleLiveStage == nil {
-		if this.UnlockPattern != enum.LiveUnlockPatternTowerOnly {
+	ld.loadSimpleLiveStage(gamedata)
+	if ld.SimpleLiveStage == nil {
+		if ld.UnlockPattern != enum.LiveUnlockPatternTowerOnly {
 			return
 		}
-		panic(fmt.Sprint("Failed to load simple live stage for: ", this.LiveDifficultyID))
+		panic(fmt.Sprint("Failed to load simple live stage for: ", ld.LiveDifficultyID))
 	}
 
 	// make the object and set relevant stuff
-	this.LiveStage = new(model.LiveStage)
-	this.LiveStage.LiveDifficultyID = this.LiveDifficultyID
-	this.LiveStage.LiveNotes = []model.LiveNote{}
-	this.LiveStage.NoteGimmicks = []model.NoteGimmick{}
-	this.LiveStage.LiveWaveSettings = []model.LiveWaveSetting{}
-	this.LiveStage.StageGimmickDict = []any{}
+	ld.LiveStage = new(model.LiveStage)
+	ld.LiveStage.LiveDifficultyID = ld.LiveDifficultyID
+	ld.LiveStage.LiveNotes = []model.LiveNote{}
+	ld.LiveStage.NoteGimmicks = []model.NoteGimmick{}
+	ld.LiveStage.LiveWaveSettings = []model.LiveWaveSetting{}
+	ld.LiveStage.StageGimmickDict = []any{}
 
-	this.LiveStage.LiveNotes = append(this.LiveStage.LiveNotes, this.SimpleLiveStage.LiveNotes...)
-	for i := range this.LiveStage.LiveNotes {
-		this.LiveStage.LiveNotes[i].ID = i + 1
-		this.LiveStage.LiveNotes[i].AutoJudgeType = enum.JudgeTypeGreat         // can be overwritten at runtime
-		this.LiveStage.LiveNotes[i].NoteRandomDropColor = enum.NoteDropColorNon // can be overwritten at runtime
+	ld.LiveStage.LiveNotes = append(ld.LiveStage.LiveNotes, ld.SimpleLiveStage.LiveNotes...)
+	for i := range ld.LiveStage.LiveNotes {
+		ld.LiveStage.LiveNotes[i].ID = i + 1
+		ld.LiveStage.LiveNotes[i].AutoJudgeType = enum.JudgeTypeGreat         // can be overwritten at runtime
+		ld.LiveStage.LiveNotes[i].NoteRandomDropColor = enum.NoteDropColorNon // can be overwritten at runtime
 	}
-	this.LiveStage.LiveWaveSettings = append(this.LiveStage.LiveWaveSettings, this.SimpleLiveStage.LiveWaveSettings...)
+	ld.LiveStage.LiveWaveSettings = append(ld.LiveStage.LiveWaveSettings, ld.SimpleLiveStage.LiveWaveSettings...)
 
 	// each note store its own gimmick, and the stage store unique note gimmicks in it
 	noteGimmickDict := map[int]bool{}
-	for _, noteGimmick := range this.LiveDifficultyNoteGimmicks {
-		this.LiveStage.LiveNotes[noteGimmick.NoteID-1].GimmickID = noteGimmick.ID
+	for _, noteGimmick := range ld.LiveDifficultyNoteGimmicks {
+		ld.LiveStage.LiveNotes[noteGimmick.NoteID-1].GimmickID = noteGimmick.ID
 		if !noteGimmickDict[noteGimmick.ID] {
 			noteGimmickDict[noteGimmick.ID] = true
-			this.LiveStage.NoteGimmicks = append(this.LiveStage.NoteGimmicks,
+			ld.LiveStage.NoteGimmicks = append(ld.LiveStage.NoteGimmicks,
 				model.NoteGimmick{
 					ID:              noteGimmick.ID,
 					NoteGimmickType: noteGimmick.NoteGimmickType,
@@ -219,49 +219,49 @@ func (this *LiveDifficulty) ConstructLiveStage(gamedata *Gamedata) {
 				})
 		}
 	}
-	sort.Slice(this.LiveStage.NoteGimmicks, func(i, j int) bool {
-		return this.LiveStage.NoteGimmicks[i].ID < this.LiveStage.NoteGimmicks[j].ID
+	sort.Slice(ld.LiveStage.NoteGimmicks, func(i, j int) bool {
+		return ld.LiveStage.NoteGimmicks[i].ID < ld.LiveStage.NoteGimmicks[j].ID
 	})
-	for i := range this.LiveStage.NoteGimmicks {
-		this.LiveStage.NoteGimmicks[i].UniqID = 2001 + i
+	for i := range ld.LiveStage.NoteGimmicks {
+		ld.LiveStage.NoteGimmicks[i].UniqID = 2001 + i
 	}
-	if this.LiveDifficultyGimmick != nil {
-		this.LiveStage.StageGimmickDict = append(this.LiveStage.StageGimmickDict, this.LiveDifficultyGimmick.TriggerType)
-		this.LiveStage.StageGimmickDict = append(this.LiveStage.StageGimmickDict, []model.StageGimmick{model.StageGimmick{
-			GimmickMasterID:    this.LiveDifficultyGimmick.ID,
-			ConditionMasterID1: this.LiveDifficultyGimmick.ConditionMasterID1,
-			ConditionMasterID2: this.LiveDifficultyGimmick.ConditionMasterID2,
-			SkillMasterID:      this.LiveDifficultyGimmick.SkillMasterID,
+	if ld.LiveDifficultyGimmick != nil {
+		ld.LiveStage.StageGimmickDict = append(ld.LiveStage.StageGimmickDict, ld.LiveDifficultyGimmick.TriggerType)
+		ld.LiveStage.StageGimmickDict = append(ld.LiveStage.StageGimmickDict, []model.StageGimmick{model.StageGimmick{
+			GimmickMasterID:    ld.LiveDifficultyGimmick.ID,
+			ConditionMasterID1: ld.LiveDifficultyGimmick.ConditionMasterID1,
+			ConditionMasterID2: ld.LiveDifficultyGimmick.ConditionMasterID2,
+			SkillMasterID:      ld.LiveDifficultyGimmick.SkillMasterID,
 			UniqID:             1001,
 		}})
 	}
 
 	// save the new map
 	{
-		output, err := json.Marshal(this.LiveStage)
+		output, err := json.Marshal(ld.LiveStage)
 		utils.CheckErr(err)
-		utils.WriteAllText(fmt.Sprintf("assets/stages/%d.json", this.LiveDifficultyID), string(output))
+		utils.WriteAllText(fmt.Sprintf("assets/stages/%d.json", ld.LiveDifficultyID), string(output))
 	}
 
 	// check against pregenerated map
 	// skip checking for coop (SBL), because the database only has constant modifier while the actual
 	// data will have some added bonus gimmick
 	// not like we use those map right now anyway
-	if this.UnlockPattern == enum.LiveUnlockPatternCoopOnly {
+	if ld.UnlockPattern == enum.LiveUnlockPatternCoopOnly {
 		return
 	}
-	text := utils.ReadAllText(fmt.Sprintf("assets/full_stages/%d.json", this.LiveDifficultyID))
+	text := utils.ReadAllText(fmt.Sprintf("assets/full_stages/%d.json", ld.LiveDifficultyID))
 	if text == "" {
-		// fmt.Println("Newly generated map: ", this.LiveDifficultyID)
+		// fmt.Println("Newly generated map: ", ld.LiveDifficultyID)
 		return
 	}
 	pregeneratedStage := model.LiveStage{}
 	err := json.Unmarshal([]byte(text), &pregeneratedStage)
 	utils.CheckErr(err)
-	if !pregeneratedStage.IsSame(this.LiveStage) {
+	if !pregeneratedStage.IsSame(ld.LiveStage) {
 		validDiff := map[int]bool{}
-		if !validDiff[this.LiveDifficultyID] {
-			panic(fmt.Sprint("Difference detected for: ", this.LiveDifficultyID, "\n", this.LiveStage, "\n_______________\n", pregeneratedStage))
+		if !validDiff[ld.LiveDifficultyID] {
+			panic(fmt.Sprint("Difference detected for: ", ld.LiveDifficultyID, "\n", ld.LiveStage, "\n_______________\n", pregeneratedStage))
 		}
 	}
 

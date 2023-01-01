@@ -10,10 +10,10 @@ import (
 type Live struct {
 }
 
-func (_ *Live) Table() string {
+func (*Live) Table() string {
 	return "m_live"
 }
-func (_ *Live) ID(fields []parser.Field) int64 {
+func (*Live) ID(fields []parser.Field) int64 {
 	if fields[0].Key != "live_id" {
 		panic("wrong field order")
 	}
@@ -21,7 +21,7 @@ func (_ *Live) ID(fields []parser.Field) int64 {
 	utils.CheckErr(err)
 	return id
 }
-func (_ *Live) Value(field parser.Field) string {
+func (*Live) Value(field parser.Field) string {
 	if field.Key == "member_unit" || field.Key == "original_deck_name" || field.Key == "source" {
 		if field.Value == "\"\"" {
 			return "NULL"
@@ -29,11 +29,11 @@ func (_ *Live) Value(field parser.Field) string {
 	}
 	return field.Value
 }
-func (this *Live) Update(field parser.Field) string {
-	return field.Key + "=" + this.Value(field)
+func (l *Live) Update(field parser.Field) string {
+	return field.Key + "=" + l.Value(field)
 }
-func (this *Live) Condition(fields []parser.Field) string {
-	return this.Update(fields[0])
+func (l *Live) Condition(fields []parser.Field) string {
+	return l.Update(fields[0])
 }
 
 func handleLiveEvent(event parser.ModifierEvent[Live]) {

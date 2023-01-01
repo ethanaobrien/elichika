@@ -16,13 +16,15 @@ var (
 
 	SessionKey = "12345678123456781234567812345678"
 
-	GlDatabasePath = "assets/db/gl/"
-	JpDatabasePath = "assets/db/jp/"
+	AssetPath = "assets/"
 
-	ServerdataDbPath = "assets/db/serverdata.db"
-	UserdataDbPath   = "assets/db/userdata.db"
+	GlMasterdataPath = AssetPath + "db/gl/"
+	JpMasterdataPath = AssetPath + "db/jp/"
 
-	PresetDataPath     = "assets/preset/"
+	ServerdataPath = "serverdata.db"
+	UserdataPath   = "userdata.db"
+
+	PresetDataPath     = "presets/"
 	UserDataBackupPath = "backup/"
 
 	MasterVersionGl = "2d61e7b4e89961c7" // read from GL database, so user can update db just by changing that

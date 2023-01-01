@@ -12,6 +12,7 @@ import (
 	"elichika/utils"
 
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -54,14 +55,17 @@ func LiveSkip(ctx *gin.Context) {
 	gamedata := ctx.MustGet("gamedata").(*gamedata.Gamedata)
 	session.UserStatus.LastLiveDifficultyID = req.LiveDifficultyMasterID
 	liveDifficulty := gamedata.LiveDifficulty[req.LiveDifficultyMasterID]
-	centerPositions := []int{}
+	isCenter := map[int]bool{}
 	for _, memberMapping := range liveDifficulty.Live.LiveMemberMapping {
-		if memberMapping.IsCenter {
-			centerPositions = append(centerPositions, memberMapping.Position)
+		if memberMapping.IsCenter && (memberMapping.Position <= 9) {
+			isCenter[memberMapping.Position-1] = true
 		}
 	}
-
-	rewardCenterLovePoint := klab.CenterBondGainBasedOnBondGain(liveDifficulty.RewardBaseLovePoint) / len(centerPositions)
+	rewardCenterLovePoint := 0
+	if len(isCenter) != 0 {
+		// liella songs have no center
+		rewardCenterLovePoint = klab.CenterBondGainBasedOnBondGain(liveDifficulty.RewardBaseLovePoint) / len(isCenter)
+	}
 
 	skipLiveResult := SkipLiveResult{
 		LiveDifficultyMasterID: req.LiveDifficultyMasterID,
@@ -88,12 +92,11 @@ func LiveSkip(ctx *gin.Context) {
 		userCard.LiveJoinCount += req.TicketUseCount // count skip clear in pfp
 		session.UpdateUserCard(userCard)
 		// update member love point
-		isCenter := (i+1 == centerPositions[0])
-		isCenter = isCenter || ((len(centerPositions) > 1) && (i+1 == centerPositions[1]))
 		addedLove := liveDifficulty.RewardBaseLovePoint
-		if isCenter {
+		if isCenter[i] {
 			addedLove += rewardCenterLovePoint
 		}
+		fmt.Println(addedLove)
 		memberMasterID := gamedata.Card[cardMasterID].Member.ID
 
 		pos, exist := bondCardPosition[memberMasterID]

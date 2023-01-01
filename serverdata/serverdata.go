@@ -63,7 +63,7 @@ func AutoInsert() {
 
 func init() {
 	var err error
-	Engine, err = xorm.NewEngine("sqlite", config.ServerdataDbPath)
+	Engine, err = xorm.NewEngine("sqlite", config.ServerdataPath)
 	utils.CheckErr(err)
 	Engine.SetMaxOpenConns(50)
 	Engine.SetMaxIdleConns(10)

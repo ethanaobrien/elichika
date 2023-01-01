@@ -16,7 +16,7 @@ func InitGacha(session *xorm.Session, args []string) {
 	// insert some relevant gacha group, gacha card, and gacha guarantee
 
 	// this is the same for everything
-	masterdata, err := xorm.NewEngine("sqlite", config.GlDatabasePath+"masterdata.db")
+	masterdata, err := xorm.NewEngine("sqlite", config.GlMasterdataPath+"masterdata.db")
 	utils.CheckErr(err)
 	// 9 groups for now:
 	// (R, SR, UR) * (muse, aqours, niji)

@@ -133,6 +133,7 @@ func updateClientDb(baseDir string, masterdataRefs []string) {
 }
 
 func init() {
+	databaseInit()
 	// outDir := config.StaticDataPath
 
 	// Gl
@@ -142,7 +143,7 @@ func init() {
 			masterdataRefGls = append(masterdataRefGls, "masterdata_"+p+"_"+l)
 		}
 	}
-	updateClientDb(config.GlDatabasePath, masterdataRefGls)
+	updateClientDb(config.GlMasterdataPath, masterdataRefGls)
 	// Jp
 	masterdataRefJps := []string{}
 	for _, p := range config.Platforms {
@@ -150,10 +151,10 @@ func init() {
 			masterdataRefJps = append(masterdataRefJps, "masterdata_"+p+"_"+l)
 		}
 	}
-	updateClientDb(config.JpDatabasePath, masterdataRefJps)
+	updateClientDb(config.JpMasterdataPath, masterdataRefJps)
 
-	config.MasterVersionGl = readMasterdataManinest(config.GlDatabasePath + "masterdata_a_en")
-	config.MasterVersionJp = readMasterdataManinest(config.JpDatabasePath + "masterdata_a_ja")
+	config.MasterVersionGl = readMasterdataManinest(config.GlMasterdataPath + "masterdata_a_en")
+	config.MasterVersionJp = readMasterdataManinest(config.JpMasterdataPath + "masterdata_a_ja")
 
 	fmt.Println("gl master version:", config.MasterVersionGl)
 	fmt.Println("jp master version:", config.MasterVersionJp)

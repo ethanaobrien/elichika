@@ -48,13 +48,13 @@ type UserLive struct {
 	TowerLive       TowerLive       `xorm:"extends" json:"tower_live"`
 }
 
-func (this UserLive) MarshalJSON() ([]byte, error) {
+func (ul UserLive) MarshalJSON() ([]byte, error) {
 	bytes := []byte("{")
-	rType := reflect.TypeOf(this)
+	rType := reflect.TypeOf(ul)
 	isFirst := true
 	for i := 0; i < rType.NumField(); i++ {
 		rField := rType.Field(i)
-		if (rField.Name == "TowerLive") && (this.TowerLive.TowerID == nil) {
+		if (rField.Name == "TowerLive") && (ul.TowerLive.TowerID == nil) {
 			continue
 		}
 		key := rField.Tag.Get("json")
@@ -71,11 +71,11 @@ func (this UserLive) MarshalJSON() ([]byte, error) {
 		bytes = append(bytes, []byte("\"")...)
 		bytes = append(bytes, []byte(key)...)
 		bytes = append(bytes, []byte("\":")...)
-		if (rField.Name == "LivePartnerCard") && (this.LivePartnerCard.CardMasterID == 0) {
+		if (rField.Name == "LivePartnerCard") && (ul.LivePartnerCard.CardMasterID == 0) {
 			bytes = append(bytes, []byte("null")...)
 			continue
 		}
-		fieldBytes, err := json.Marshal(reflect.ValueOf(this).Field(i).Interface())
+		fieldBytes, err := json.Marshal(reflect.ValueOf(ul).Field(i).Interface())
 		if err != nil {
 			return nil, err
 		}

@@ -46,7 +46,7 @@ func InitTables(overwrite bool) {
 
 func init() {
 	var err error
-	Engine, err = xorm.NewEngine("sqlite", config.UserdataDbPath)
+	Engine, err = xorm.NewEngine("sqlite", config.UserdataPath)
 	utils.CheckErr(err)
 	Engine.SetMaxOpenConns(50)
 	Engine.SetMaxIdleConns(10)
