@@ -14,10 +14,19 @@ var (
 
 	SessionKey = "12345678123456781234567812345678"
 
-	MainDb  = "assets/main.db"
-	MainEng *xorm.Engine
+	MainDb         = "assets/main.db"
+	MasterdataDbGl = "assets/db/masterdata_gl.db"
+	MasterdataDbJp = "assets/db/masterdata_jp.db"
+	ServerdataDb   = "assets/db/serverdata.db"
+
+	MainEng         *xorm.Engine
+	MasterdataEngGl *xorm.Engine
+	MasterdataEngJp *xorm.Engine
 
 	Conf = &AppConfigs{}
+
+	PresetDataPath = "assets/preset/"
+	UserDataPath   = "assets/userdata/"
 )
 
 func init() {
@@ -34,4 +43,20 @@ func init() {
 	MainEng = eng
 	MainEng.SetMaxOpenConns(50)
 	MainEng.SetMaxIdleConns(10)
+
+	eng1, err := xorm.NewEngine("sqlite", MasterdataDbGl)
+	if err != nil {
+		panic(err)
+	}
+	MasterdataEngGl = eng1
+	MasterdataEngGl.SetMaxOpenConns(50)
+	MasterdataEngGl.SetMaxIdleConns(10)
+
+	eng2, err := xorm.NewEngine("sqlite", MasterdataDbJp)
+	if err != nil {
+		panic(err)
+	}
+	MasterdataEngJp = eng2
+	MasterdataEngJp.SetMaxOpenConns(50)
+	MasterdataEngJp.SetMaxIdleConns(10)
 }

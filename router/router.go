@@ -50,6 +50,7 @@ func Router(r *gin.Engine) {
 		api.POST("/mission/clearMissionBadge", handler.ClearMissionBadge)
 		api.POST("/mission/fetchMission", handler.FetchMission)
 		api.POST("/navi/saveUserNaviVoice", handler.SaveUserNaviVoice)
+		api.POST("/navi/tapLovePoint", handler.TapLovePoint)
 		api.POST("/notice/fetchNotice", handler.FetchNotice)
 		api.POST("/present/fetch", handler.FetchPresent)
 		api.POST("/sif2DataLink/dataLink", handler.Sif2DataLink)
@@ -60,8 +61,13 @@ func Router(r *gin.Engine) {
 		api.POST("/subscription/fetchSubscriptionPass", handler.FetchSubscriptionPass)
 		api.POST("/terms/agreement", handler.Agreement)
 		api.POST("/trainingTree/fetchTrainingTree", handler.FetchTrainingTree)
+		api.POST("/trainingTree/levelUpCard", handler.LevelUpCard)
+		api.POST("/trainingTree/gradeUpCard", handler.GradeUpCard)
+		api.POST("/infoTrigger/readCardGradeUp", handler.ReadCardGradeUp)
+		api.POST("/trainingTree/activateTrainingTreeCell", handler.ActivateTrainingTreeCell)
 		api.POST("/userProfile/fetchProfile", handler.FetchProfile)
 		api.POST("/userProfile/setProfile", handler.SetProfile)
 		api.POST("/userProfile/setRecommendCard", handler.SetRecommendCard)
+		api.POST("/gdpr/updateConsentState", handler.UpdateConsentState)
 	}
 }

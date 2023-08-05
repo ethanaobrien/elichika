@@ -3,6 +3,8 @@ package handler
 import (
 	"elichika/config"
 	"elichika/model"
+	"elichika/serverdb"
+
 	"encoding/json"
 	"net/http"
 
@@ -12,10 +14,12 @@ import (
 )
 
 func UpdateCardNewFlag(ctx *gin.Context) {
-	signBody, _ := sjson.Set(GetData("updateCardNewFlag.json"),
-		"user_model_diff.user_status", GetUserStatus())
-	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
+	// reqBody := gjson.Parse(ctx.GetString("reqBody")).Array()[0]
+	// fmt.Println(reqBody.String())
+	session := serverdb.GetSession(UserID)
 
+	signBody := session.Finalize(GetData("updateCardNewFlag.json"), "user_model_diff")
+	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 	ctx.Header("Content-Type", "application/json")
 	ctx.String(http.StatusOK, resp)
 }
@@ -29,40 +33,12 @@ func ChangeIsAwakeningImage(ctx *gin.Context) {
 		panic(err)
 	}
 
-	loginData := GetUserData("userCard.json")
-	cardInfo := model.CardInfo{}
-	gjson.Parse(loginData).Get("user_card_by_card_id").
-		ForEach(func(key, value gjson.Result) bool {
-			if value.IsObject() {
-				if err := json.Unmarshal([]byte(value.String()), &cardInfo); err != nil {
-					panic(err)
-				}
+	session := serverdb.GetSession(UserID)
+	userCard := session.GetUserCard(req.CardMasterID)
+	userCard.IsAwakeningImage = req.IsAwakeningImage
+	session.UpdateUserCard(userCard)
 
-				if cardInfo.CardMasterID == req.CardMasterID {
-					cardInfo.IsAwakeningImage = req.IsAwakeningImage
-
-					k := "user_card_by_card_id." + key.String() + ".is_awakening_image"
-					SetUserData("userCard.json", k, req.IsAwakeningImage)
-
-					return false
-				}
-			}
-			return true
-		})
-
-	userCardInfo := []any{}
-	userCardInfo = append(userCardInfo, cardInfo.CardMasterID)
-	userCardInfo = append(userCardInfo, cardInfo)
-
-	// Update user profile
-	cardMasterId := gjson.Parse(GetUserData("fetchProfile.json")).Get("profile_info.basic_info.recommend_card_master_id").Int()
-	if cardMasterId == int64(req.CardMasterID) {
-		SetUserData("fetchProfile.json", "profile_info.basic_info.is_recommend_card_image_awaken", req.IsAwakeningImage)
-	}
-
-	cardResp := GetData("changeIsAwakeningImage.json")
-	cardResp, _ = sjson.Set(cardResp, "user_model_diff.user_status", GetUserStatus())
-	cardResp, _ = sjson.Set(cardResp, "user_model_diff.user_card_by_card_id", userCardInfo)
+	cardResp := session.Finalize(GetData("changeIsAwakeningImage.json"), "user_model_diff")
 	resp := SignResp(ctx.GetString("ep"), cardResp, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")
@@ -78,34 +54,12 @@ func ChangeFavorite(ctx *gin.Context) {
 		panic(err)
 	}
 
-	cardData := GetUserData("userCard.json")
-	cardInfo := model.CardInfo{}
-	gjson.Parse(cardData).Get("user_card_by_card_id").
-		ForEach(func(key, value gjson.Result) bool {
-			if value.IsObject() {
-				if err := json.Unmarshal([]byte(value.String()), &cardInfo); err != nil {
-					panic(err)
-				}
+	session := serverdb.GetSession(UserID)
+	userCard := session.GetUserCard(req.CardMasterID)
+	userCard.IsFavorite = req.IsFavorite
+	session.UpdateUserCard(userCard)
 
-				if cardInfo.CardMasterID == req.CardMasterID {
-					cardInfo.IsFavorite = req.IsFavorite
-
-					k := "user_card_by_card_id." + key.String() + ".is_favorite"
-					SetUserData("userCard.json", k, req.IsFavorite)
-
-					return false
-				}
-			}
-			return true
-		})
-
-	userCardInfo := []any{}
-	userCardInfo = append(userCardInfo, cardInfo.CardMasterID)
-	userCardInfo = append(userCardInfo, cardInfo)
-
-	cardResp := GetData("changeFavorite.json")
-	cardResp, _ = sjson.Set(cardResp, "user_model_diff.user_status", GetUserStatus())
-	cardResp, _ = sjson.Set(cardResp, "user_model_diff.user_card_by_card_id", userCardInfo)
+	cardResp := session.Finalize(GetData("changeFavorite.json"), "user_model_diff")
 	resp := SignResp(ctx.GetString("ep"), cardResp, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")
@@ -115,51 +69,20 @@ func ChangeFavorite(ctx *gin.Context) {
 func GetOtherUserCard(ctx *gin.Context) {
 	reqBody := gjson.Parse(ctx.GetString("reqBody")).Array()[0]
 	// fmt.Println(reqBody.String())
-
-	userCardReq := model.UserCardReq{}
-	if err := json.Unmarshal([]byte(reqBody.String()), &userCardReq); err != nil {
-		panic(err)
+	type OtherUserCardReq struct {
+		UserID       int `json:"user_id"`
+		CardMasterID int `json:"card_master_id"`
 	}
-	// fmt.Println(liveStartReq)
-
-	var newUserCardInfo model.NewCardInfo
-	var cardInfo string
-	partnerList := gjson.Parse(GetData("fetchLivePartners.json")).Get("partner_select_state.live_partners")
-	partnerList.ForEach(func(k, v gjson.Result) bool {
-		userId := v.Get("user_id").Int()
-		if userId == userCardReq.UserID {
-			v.Get("card_by_category").ForEach(func(kk, vv gjson.Result) bool {
-				if vv.IsObject() {
-					cardId := vv.Get("card_master_id").Int()
-					if cardId == userCardReq.CardMasterID {
-						cardInfo = vv.String()
-						// fmt.Println(cardInfo)
-						return false
-					}
-				}
-				return true
-			})
-			return false
-		}
-		return true
-	})
-
-	if err := json.Unmarshal([]byte(cardInfo), &newUserCardInfo); err != nil {
+	req := OtherUserCardReq{}
+	// userCardReq := model.UserCardReq{}
+	if err := json.Unmarshal([]byte(reqBody.String()), &req); err != nil {
 		panic(err)
 	}
 
-	userCardResp := GetData("getOtherUserCard.json")
-	userCardResp, _ = sjson.Set(userCardResp, "other_user_card", newUserCardInfo)
+	partnerCard := serverdb.GetPartnerCardFromUserCard(serverdb.GetUserCard(req.UserID, req.CardMasterID))
+	userCardResp, _ := sjson.Set("{}", "other_user_card", partnerCard)
 	resp := SignResp(ctx.GetString("ep"), userCardResp, config.SessionKey)
 	// fmt.Println(resp)
-
-	ctx.Header("Content-Type", "application/json")
-	ctx.String(http.StatusOK, resp)
-}
-
-func FetchTrainingTree(ctx *gin.Context) {
-	signBody := GetData("fetchTrainingTree.json")
-	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")
 	ctx.String(http.StatusOK, resp)

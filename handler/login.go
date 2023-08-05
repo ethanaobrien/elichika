@@ -3,10 +3,14 @@ package handler
 import (
 	"elichika/config"
 	"elichika/encrypt"
+	// "elichika/model"
+	"elichika/serverdb"
 	"elichika/utils"
+
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -87,47 +91,111 @@ func Login(ctx *gin.Context) {
 	newKey = utils.Xor(newKey, jaKey)
 	newKey64 := base64.StdEncoding.EncodeToString(newKey)
 	// fmt.Println("Session Key:", newKey64)
+	serverdb.InitDb(IsGlobal)
+	session := serverdb.GetSession(UserID)
+	session.UserStatus.LastLoginAt = ClientTimeStamp
 
 	loginBody := GetData("login.json")
 	loginBody, _ = sjson.Set(loginBody, "session_key", newKey64)
-	loginBody, _ = sjson.Set(loginBody, "user_model.user_status", GetUserStatus())
+
+	loginBody, _ = sjson.Set(loginBody, "user_model.user_status", session.UserStatus)
 
 	/* ======== UserData ======== */
-	// live decks
-	liveDeckData := gjson.Parse(GetLiveDeckData())
-	loginBody, _ = sjson.Set(loginBody, "user_model.user_live_deck_by_id", liveDeckData.Get("user_live_deck_by_id").Value())
+	fmt.Println("User logins: ", UserID)
 
-	var liveParty []any
-	decoder := json.NewDecoder(strings.NewReader(liveDeckData.Get("user_live_party_by_id").String()))
-	decoder.UseNumber()
-	err = decoder.Decode(&liveParty)
-	CheckErr(err)
-	loginBody, _ = sjson.Set(loginBody, "user_model.user_live_party_by_id", liveParty)
+	// live decks
+	dbLiveDecks := session.GetAllLiveDecks()
+	if len(dbLiveDecks) == 0 {
+		panic("no live deck found")
+	}
+	userLiveDecks := []any{}
+	for _, liveDeckInfo := range dbLiveDecks {
+		userLiveDecks = append(userLiveDecks, liveDeckInfo.UserLiveDeckID)
+		userLiveDecks = append(userLiveDecks, liveDeckInfo)
+	}
+	loginBody, _ = sjson.Set(loginBody, "user_model.user_live_deck_by_id", userLiveDecks)
+
+	dbLiveParties := session.GetAllLiveParties()
+	if len(dbLiveParties) == 0 {
+		panic("no live party")
+	}
+	userLiveParties := []any{}
+	for _, livePartyInfo := range dbLiveParties {
+		userLiveParties = append(userLiveParties, livePartyInfo.PartyID)
+		userLiveParties = append(userLiveParties, livePartyInfo)
+	}
+	loginBody, _ = sjson.Set(loginBody, "user_model.user_live_party_by_id", userLiveParties)
 
 	// member settings
-	memberData := gjson.Parse(GetUserData("memberSettings.json"))
-	loginBody, _ = sjson.Set(loginBody, "user_model.user_member_by_member_id", memberData.Get("user_member_by_member_id").Value())
+	dbMembers := session.GetAllMembers()
+	if len(dbMembers) == 0 {
+		panic("no member found")
+	}
+	var userMembers []any
+	for _, memberInfo := range dbMembers {
+		userMembers = append(userMembers, memberInfo.MemberMasterID)
+		userMembers = append(userMembers, memberInfo)
+	}
+	loginBody, _ = sjson.Set(loginBody, "user_model.user_member_by_member_id", userMembers)
+
+	// member love panel settings
+	dbLovePanels := session.GetAllMemberLovePanels()
+	if len(dbLovePanels) == 0 {
+		panic("no member love panel found")
+	}
+	loginBody, _ = sjson.Set(loginBody, "user_model.member_love_panels", dbLovePanels)
 
 	// lesson decks
-	lessonData := gjson.Parse(GetUserData("lessonDeck.json"))
-	loginBody, _ = sjson.Set(loginBody, "user_model.user_lesson_deck_by_id", lessonData.Get("user_lesson_deck_by_id").Value())
+	dbLessonDecks := session.GetAllLessonDecks()
+	if len(dbLessonDecks) == 0 {
+		panic("no lesson deck")
+	}
+
+	userLessonDecks := []any{}
+	for _, userLessonDeck := range dbLessonDecks {
+		userLessonDecks = append(userLessonDecks, userLessonDeck.UserLessonDeckID)
+		userLessonDecks = append(userLessonDecks, userLessonDeck)
+	}
+	loginBody, _ = sjson.Set(loginBody, "user_model.user_lesson_deck_by_id", userLessonDecks)
 
 	// user cards
-	cardData := gjson.Parse(GetUserData("userCard.json"))
-	loginBody, _ = sjson.Set(loginBody, "user_model.user_card_by_card_id", cardData.Get("user_card_by_card_id").Value())
+	dbCards := session.GetAllCards()
+	if len(dbCards) == 0 {
+		panic("no card")
+	}
+
+	userCards := []any{}
+	for _, userCard := range dbCards {
+		userCards = append(userCards, userCard.CardMasterID)
+		userCards = append(userCards, userCard)
+	}
+	loginBody, _ = sjson.Set(loginBody, "user_model.user_card_by_card_id", userCards)
+
+	// user suits
+	dbSuits := session.GetAllSuits()
+	if len(dbSuits) == 0 {
+		panic("no suit")
+	}
+
+	userSuits := []any{}
+	for _, userSuit := range dbSuits {
+		userSuits = append(userSuits, userSuit.SuitMasterID)
+		userSuits = append(userSuits, userSuit)
+	}
+	loginBody, err = sjson.Set(loginBody, "user_model.user_suit_by_suit_id", userSuits)
+	CheckErr(err)
 
 	// user accessory
 	var UserAccessory []any
-	decoder = json.NewDecoder(strings.NewReader(
+	decoder := json.NewDecoder(strings.NewReader(
 		gjson.Parse(GetUserAccessoryData()).Get("user_accessory_by_user_accessory_id").String()))
 	decoder.UseNumber()
 	err = decoder.Decode(&UserAccessory)
 	CheckErr(err)
 	loginBody, _ = sjson.Set(loginBody, "user_model.user_accessory_by_user_accessory_id", UserAccessory)
 	/* ======== UserData ======== */
-
+	session.Finalize("{}", "")
 	resp := SignResp(ctx.GetString("ep"), loginBody, config.SessionKey)
-
 	ctx.Header("Content-Type", "application/json")
 	ctx.String(http.StatusOK, resp)
 }

@@ -2,15 +2,16 @@ package handler
 
 import (
 	"elichika/config"
+	"elichika/serverdb"
+
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tidwall/sjson"
 )
 
 func FetchMission(ctx *gin.Context) {
-	signBody, _ := sjson.Set(GetData("fetchMission.json"),
-		"user_model.user_status", GetUserStatus())
+	session := serverdb.GetSession(UserID)
+	signBody := session.Finalize(GetData("fetchMission.json"), "user_model")
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")
@@ -18,8 +19,8 @@ func FetchMission(ctx *gin.Context) {
 }
 
 func ClearMissionBadge(ctx *gin.Context) {
-	signBody, _ := sjson.Set(GetData("clearMissionBadge.json"),
-		"user_model.user_status", GetUserStatus())
+	session := serverdb.GetSession(UserID)
+	signBody := session.Finalize(GetData("clearMissionBadge.json"), "user_model")
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")

@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
 	"xorm.io/xorm"
 )
 
@@ -26,6 +25,9 @@ var (
 
 	presetDataPath = "assets/preset/"
 	userDataPath   = "assets/userdata/"
+
+	UserID          int
+	ClientTimeStamp int64
 )
 
 func init() {
@@ -49,17 +51,17 @@ func SignResp(ep, body, key string) (resp string) {
 	return
 }
 
-func GetUserStatus() map[string]any {
-	userData := GetUserData("userStatus.json")
-	var r map[string]any
-	if err := json.Unmarshal([]byte(userData), &r); err != nil {
-		panic(err)
-	}
-	if IsGlobal {
-		r["gdpr_version"] = 4
-	}
-	return r
-}
+// func GetUserStatus() map[string]any {
+// 	userData := GetUserData("userStatus.json")
+// 	var r map[string]any
+// 	if err := json.Unmarshal([]byte(userData), &r); err != nil {
+// 		panic(err)
+// 	}
+// 	if IsGlobal {
+// 		r["gdpr_version"] = 4
+// 	}
+// 	return r
+// }
 
 func GetData(fileName string) string {
 	presetDataFile := presetDataPath + fileName
@@ -87,34 +89,11 @@ func GetUserData(fileName string) string {
 	return userData
 }
 
-func GetLiveDeckData() string {
-	if IsGlobal {
-		return GetUserData("liveDeck_gl.json")
-	}
-	return GetUserData("liveDeck.json")
-}
-
 func GetUserAccessoryData() string {
 	if IsGlobal {
 		return GetData("userAccessory_gl.json")
 	}
 	return GetData("userAccessory.json")
-}
-
-func SetUserData(fileName, key string, value any) string {
-	userData, err := sjson.Set(GetUserData(fileName), key, value)
-	CheckErr(err)
-
-	utils.WriteAllText(userDataPath+fileName, userData)
-
-	return userData
-}
-
-func SetLiveDeckData(key string, value any) string {
-	if IsGlobal {
-		return SetUserData("liveDeck_gl.json", key, value)
-	}
-	return SetUserData("liveDeck.json", key, value)
 }
 
 func GetPartyInfoByRoleIds(roleIds []int) (partyIcon int, partyName string) {
@@ -196,4 +175,12 @@ func GetMemberInfo(memberMasterId int) (memberInfo model.UserMemberInfo) {
 		panic(err)
 	}
 	return
+}
+
+func GetMasterdataDb() *xorm.Engine {
+	if IsGlobal {
+		return config.MasterdataEngGl
+	} else {
+		return config.MasterdataEngJp
+	}
 }

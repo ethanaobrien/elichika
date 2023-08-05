@@ -3,8 +3,11 @@ package handler
 import (
 	"elichika/config"
 	"elichika/model"
+	"elichika/serverdb"
 	"net/http"
 	"time"
+
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
@@ -13,21 +16,17 @@ import (
 
 func FetchCommunicationMemberDetail(ctx *gin.Context) {
 	reqBody := ctx.GetString("reqBody")
-	var memberId int64
+	var memberId int
 	gjson.Parse(reqBody).ForEach(func(key, value gjson.Result) bool {
 		if value.Get("member_id").String() != "" {
-			memberId = value.Get("member_id").Int()
+			memberId = int(value.Get("member_id").Int())
 			return false
 		}
 		return true
 	})
 
-	lovePanelCellIds := []int{}
-	err := MainEng.Table("m_member_love_panel_cell").
-		Join("LEFT", "m_member_love_panel", "m_member_love_panel_cell.member_love_panel_master_id = m_member_love_panel.id").
-		Cols("m_member_love_panel_cell.id").Where("m_member_love_panel.member_master_id = ?", memberId).
-		OrderBy("m_member_love_panel_cell.id ASC").Find(&lovePanelCellIds)
-	CheckErr(err)
+	session := serverdb.GetSession(UserID)
+	lovePanelCellIds := session.GetLovePanelCellIDs(memberId)
 
 	now := time.Now()
 	year, month, day := now.Year(), now.Month(), now.Day()
@@ -43,49 +42,54 @@ func FetchCommunicationMemberDetail(ctx *gin.Context) {
 	signBody, _ = sjson.Set(signBody, "weekday_state.weekday", weekday)
 	signBody, _ = sjson.Set(signBody, "weekday_state.next_weekday_at", tomorrow)
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
-
+	fmt.Println(resp)
 	ctx.Header("Content-Type", "application/json")
 	ctx.String(http.StatusOK, resp)
 }
 
+// where is this called?
 func UpdateUserCommunicationMemberDetailBadge(ctx *gin.Context) {
-	reqBody := ctx.GetString("reqBody")
-	var memberMasterId int64
-	gjson.Parse(reqBody).ForEach(func(key, value gjson.Result) bool {
-		if value.Get("member_master_id").String() != "" {
-			memberMasterId = value.Get("member_master_id").Int()
-			return false
-		}
-		return true
-	})
+	panic("UpdateUserCommunicationMemberDetailBadge")
+	// reqBody := ctx.GetString("reqBody")
+	// var memberMasterId int64
+	// gjson.Parse(reqBody).ForEach(func(key, value gjson.Result) bool {
+	// 	if value.Get("member_master_id").String() != "" {
+	// 		memberMasterId = value.Get("member_master_id").Int()
+	// 		return false
+	// 	}
+	// 	return true
+	// })
 
-	userDetail := []any{}
-	userDetail = append(userDetail, memberMasterId)
-	userDetail = append(userDetail, model.UserCommunicationMemberDetailBadgeByID{
-		MemberMasterID: int(memberMasterId),
-	})
+	// userDetail := []any{}
+	// userDetail = append(userDetail, memberMasterId)
+	// userDetail = append(userDetail, model.UserCommunicationMemberDetailBadgeByID{
+	// 	MemberMasterID: int(memberMasterId),
+	// })
 
-	signBody := GetData("updateUserCommunicationMemberDetailBadge.json")
-	signBody, _ = sjson.Set(signBody, "user_model.user_status", GetUserStatus())
-	signBody, _ = sjson.Set(signBody, "user_model.user_communication_member_detail_badge_by_id", userDetail)
-	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
+	// signBody := GetData("updateUserCommunicationMemberDetailBadge.json")
+	// signBody, _ = sjson.Set(signBody, "user_model.user_status", GetUserStatus())
+	// signBody, _ = sjson.Set(signBody, "user_model.user_communication_member_detail_badge_by_id", userDetail)
+	// resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
-	ctx.Header("Content-Type", "application/json")
-	ctx.String(http.StatusOK, resp)
+	// ctx.Header("Content-Type", "application/json")
+	// ctx.String(http.StatusOK, resp)
 }
 
+// seems like called in setting featured song, shouldn't be in this file
 func UpdateUserLiveDifficultyNewFlag(ctx *gin.Context) {
-	signBody, _ := sjson.Set(GetData("updateUserLiveDifficultyNewFlag.json"),
-		"user_model.user_status", GetUserStatus())
-	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
+	panic("UpdateUserLiveDifficultyNewFlag")
+	// signBody, _ := sjson.Set(GetData("updateUserLiveDifficultyNewFlag.json"),
+	// 	"user_model.user_status", GetUserStatus())
+	// resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
-	ctx.Header("Content-Type", "application/json")
-	ctx.String(http.StatusOK, resp)
+	// ctx.Header("Content-Type", "application/json")
+	// ctx.String(http.StatusOK, resp)
 }
 
 func FinishUserStorySide(ctx *gin.Context) {
-	signBody, _ := sjson.Set(GetData("finishUserStorySide.json"),
-		"user_model.user_status", GetUserStatus())
+	// need to award items / mark as read
+	session := serverdb.GetSession(UserID)
+	signBody := session.Finalize(GetData("finishUserStorySide.json"), "user_model")
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")
@@ -93,8 +97,9 @@ func FinishUserStorySide(ctx *gin.Context) {
 }
 
 func FinishUserStoryMember(ctx *gin.Context) {
-	signBody, _ := sjson.Set(GetData("finishUserStoryMember.json"),
-		"user_model.user_status", GetUserStatus())
+	// need to award items / mark as read
+	session := serverdb.GetSession(UserID)
+	signBody := session.Finalize(GetData("finishUserStoryMember.json"), "user_model")
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")
@@ -105,68 +110,43 @@ func SetTheme(ctx *gin.Context) {
 	reqBody := ctx.GetString("reqBody")
 	// fmt.Println(reqBody)
 
-	var memberMasterId, suitMasterId, backgroundMasterId int64
+	session := serverdb.GetSession(UserID)
+
+	var memberMasterID, suitMasterID, backgroundMasterID int
 	gjson.Parse(reqBody).ForEach(func(key, value gjson.Result) bool {
 		if value.Get("member_master_id").String() != "" {
-			memberMasterId = value.Get("member_master_id").Int()
-			suitMasterId = value.Get("suit_master_id").Int()
-			backgroundMasterId = value.Get("custom_background_master_id").Int()
+			memberMasterID = int(value.Get("member_master_id").Int())
+			suitMasterID = int(value.Get("suit_master_id").Int())
+			backgroundMasterID = int(value.Get("custom_background_master_id").Int())
 
-			gjson.Parse(GetUserData("memberSettings.json")).Get("user_member_by_member_id").
-				ForEach(func(kk, vv gjson.Result) bool {
-					if vv.IsObject() {
-						if vv.Get("member_master_id").Int() == memberMasterId {
-							SetUserData("memberSettings.json", "user_member_by_member_id."+
-								kk.String()+".custom_background_master_id", backgroundMasterId)
-							SetUserData("memberSettings.json", "user_member_by_member_id."+
-								kk.String()+".suit_master_id", suitMasterId)
-							return false
-						}
-					}
-					return true
-				})
+			member := session.GetMember(memberMasterID)
+			member.SuitMasterID = suitMasterID
+			member.CustomBackgroundMasterID = backgroundMasterID
+			session.UpdateMember(member)
 			return false
 		}
 		return true
 	})
 
-	userMemberRes := []any{}
-	userMemberRes = append(userMemberRes, memberMasterId)
-	userMemberRes = append(userMemberRes, model.UserMemberInfo{
-		MemberMasterID:           int(memberMasterId),
-		CustomBackgroundMasterID: int(backgroundMasterId),
-		SuitMasterID:             int(suitMasterId),
-		LovePoint:                13181880,
-		LovePointLimit:           13181880,
-		LoveLevel:                500,
-		ViewStatus:               1,
-		IsNew:                    false,
-	})
-
 	userSuitRes := []any{}
-	userSuitRes = append(userSuitRes, suitMasterId)
+	userSuitRes = append(userSuitRes, suitMasterID)
 	userSuitRes = append(userSuitRes, model.SuitInfo{
-		SuitMasterID: int(suitMasterId),
+		SuitMasterID: int(suitMasterID),
 		IsNew:        false,
 	})
 
-	signBody := GetData("setTheme.json")
-	signBody, _ = sjson.Set(signBody, "user_model.user_status", GetUserStatus())
-	signBody, _ = sjson.Set(signBody, "user_model.user_member_by_member_id", userMemberRes)
+	signBody := session.Finalize(GetData("setTheme.json"), "user_model")
 	signBody, _ = sjson.Set(signBody, "user_model.user_suit_by_suit_id", userSuitRes)
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
-
 	ctx.Header("Content-Type", "application/json")
 	ctx.String(http.StatusOK, resp)
 }
 
 func SetFavoriteMember(ctx *gin.Context) {
 	reqBody := ctx.GetString("reqBody")
-
-	SetUserData("userStatus.json", "favorite_member_id",
-		gjson.Parse(reqBody).Array()[0].Get("member_master_id").Int())
-	signBody, _ := sjson.Set(GetData("setFavoriteMember.json"),
-		"user_model.user_status", GetUserStatus())
+	session := serverdb.GetSession(UserID)
+	session.UserStatus.FavoriteMemberID = int(gjson.Parse(reqBody).Array()[0].Get("member_master_id").Int())
+	signBody := session.Finalize(GetData("setFavoriteMember.json"), "user_model")
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")

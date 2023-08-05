@@ -2,15 +2,16 @@ package handler
 
 import (
 	"elichika/config"
+	"elichika/serverdb"
+
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tidwall/sjson"
 )
 
 func FinishStory(ctx *gin.Context) {
-	signBody, _ := sjson.Set(GetData("finishStory.json"),
-		"user_model.user_status", GetUserStatus())
+	session := serverdb.GetSession(UserID)
+	signBody := session.Finalize(GetData("finishStory.json"), "user_model")
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")
@@ -18,8 +19,8 @@ func FinishStory(ctx *gin.Context) {
 }
 
 func FinishStoryMain(ctx *gin.Context) {
-	signBody, _ := sjson.Set(GetData("finishUserStoryMain.json"),
-		"user_model_diff.user_status", GetUserStatus())
+	session := serverdb.GetSession(UserID)
+	signBody := session.Finalize(GetData("finishUserStoryMain.json"), "user_model_diff")
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")
@@ -27,8 +28,8 @@ func FinishStoryMain(ctx *gin.Context) {
 }
 
 func FinishStoryLinkage(ctx *gin.Context) {
-	signBody, _ := sjson.Set(GetData("finishStoryLinkage.json"),
-		"user_model_diff.user_status", GetUserStatus())
+	session := serverdb.GetSession(UserID)
+	signBody := session.Finalize(GetData("finishStoryLinkage.json"), "user_model_diff")
 	resp := SignResp(ctx.GetString("ep"), signBody, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")
