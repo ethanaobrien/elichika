@@ -6,7 +6,6 @@ import (
 	"elichika/handler"
 	"elichika/model"
 	"elichika/userdata"
-	"elichika/utils"
 
 	"encoding/json"
 	"fmt"
@@ -107,6 +106,10 @@ func LiveStart(ctx *gin.Context) {
 	userID := ctx.GetInt("user_id")
 	session := userdata.GetSession(ctx, userID)
 	defer session.Close()
+	gamedata := ctx.MustGet("gamedata").(*gamedata.Gamedata)
+
+	masterLiveDifficulty := gamedata.LiveDifficulty[req.LiveDifficultyID]
+	masterLiveDifficulty.ConstructLiveStage(gamedata)
 
 	session.UserStatus.LastLiveDifficultyID = req.LiveDifficultyID
 	session.UserStatus.LatestLiveDeckID = req.DeckID
@@ -121,16 +124,10 @@ func LiveStart(ctx *gin.Context) {
 	liveState.IsPartnerFriend = true
 	liveState.DeckID = req.DeckID
 	liveState.CellID = req.CellID // cell id send player to the correct place after playing, normal live don't have cell id.
+	// liveState.TowerLive = req.LiveTowerStatus
 
-	liveNotes := utils.ReadAllText(fmt.Sprintf("assets/stages/%d.json", req.LiveDifficultyID))
-	if liveNotes == "" {
-		panic("歌曲情报信息不存在！(song doesn't exist)")
-	}
-
-	if err := json.Unmarshal([]byte(liveNotes), &liveState.LiveStage); err != nil {
-		panic(err)
-	}
-
+	liveState.LiveStage = *masterLiveDifficulty.LiveStage
+	liveState.LiveStage.LiveDifficultyID = req.LiveDifficultyID
 	if req.IsAutoPlay {
 		for k := range liveState.LiveStage.LiveNotes {
 			liveState.LiveStage.LiveNotes[k].AutoJudgeType = 30
@@ -144,6 +141,7 @@ func LiveStart(ctx *gin.Context) {
 
 	liveStartResp := session.Finalize("{}", "user_model_diff")
 	liveStartResp, _ = sjson.Set(liveStartResp, "live", liveState)
+	fmt.Println(liveStartResp)
 	if req.PartnerUserID == 0 {
 		liveStartResp, _ = sjson.Set(liveStartResp, "live.live_partner_card", nil)
 	}

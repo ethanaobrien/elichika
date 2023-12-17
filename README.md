@@ -20,11 +20,15 @@ curl -L https://raw.githubusercontent.com/arina999999997/elichika/master/bin/ins
 Or clone the respository and build manually, look at the scripts for the steps.
 
 ## Setting up config file
-Use ``config.json`` to change some runtime parameters. The server come with a ready-to-go config by default, so if you're fine with it, you can skip this part.
+Use ``config.json`` to change some runtime parameters. If the file is not present, you can run elichika to generate it.
+
+If a field is present in ``config.json``, it will be used, otherwise, it will take the default config's value.
+
+The fields are as follow (might not be up to date, you can check the code to see what field actually does what):
 
 - ``"cdn_server"`` 
     - The server for client to download assets.
-    - The script's config use https://llsifas.catfolk.party/static/ (special thanks to sarah for hosting it).
+    - Default to  https://llsifas.catfolk.party/static/ (special thanks to sarah for hosting it).
     - We can host our own CDN with `elichika` by put the relevant files in `elichika/static`.
         - You should look into this if you want to further develop the game/server, as doing so might require redownloading things a lot.
 - ``"server_address"``
@@ -33,6 +37,10 @@ Use ``config.json`` to change some runtime parameters. The server come with a re
 - ``"tap_bond_gain"``
     - The amount of bond gained by tapping an idol.
     - Default to `20` like the original, but we can change it to a big value to skip farming bond.
+- ``"auto_judge_type"``
+    - The autoplay judgement type.
+    - Default to `20` (great) like the original.
+    - Some other possible value include `30` for perfect and `14` for good.
 
 ## Running the server
 After setting up the server, we need to run it. Simply navigate to `elichika`'s directory and run it:
@@ -113,9 +121,16 @@ The WebUI for the sever can be located at `<server_address>/webui`.
 Checkout the [docs](https://github.com/arina999999997/elichika/tree/master/docs) for more details on the server and how to do more advanced stuffs. 
 
 ## Credit
-Special thanks to the LL Hax community for:
+Special thanks to the LL Hax community in general for:
 
 - Archiving and hosting database / assets
-- Original elichika release
-- General and specific knowledges about the game.
+- General and specific knowledges about the game
 
+Even more special thanks for the specific individuals:
+
+- YumeMichi for original elichika.
+- triangle for informations and scripts to encode/decode database, as well as patching the clients.
+- Suyooo for the very helpful [SIFAS wiki](https://suyo.be/sifas/wiki/) and for providing more accurate stage data.
+- sarah for hosting public Internet CDN.
+- Caret for the LL Hax discord.
+- And other people who probably deserve to be here but I can't quite recall right now.

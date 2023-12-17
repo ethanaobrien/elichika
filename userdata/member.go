@@ -109,7 +109,7 @@ func (session *Session) AddLovePoint(memberID, point int) int {
 				// TODO: remove magic id from love panel system
 				currentLovePanel.LevelUp()
 				session.AddTriggerBasic(model.TriggerBasic{
-					InfoTriggerType: enum.InfoTriggerTypeUnlockBondBoard,
+					InfoTriggerType: enum.InfoTriggerTypeMemberLovePanelNew,
 					ParamInt:        currentLovePanel.LovePanelLevel*1000 + currentLovePanel.MemberID})
 
 				session.UpdateMemberLovePanel(currentLovePanel)

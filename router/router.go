@@ -157,6 +157,10 @@ func Router(r *gin.Engine) {
 		api.POST("/unlockScene/saveUnlockedScene", handler.SaveUnlockedScene)
 		api.POST("/sceneTips/saveSceneTipsType", handler.SaveSceneTipsType)
 
+		// DLP stuff, can be accessed by editing the database to have a DLP session going on
+		api.POST("/tower/fetchTowerSelect", handler.FetchTowerSelect)
+		api.POST("/tower/fetchTowerTop", handler.FetchTowerTop)
+
 		// TODO:
 		// /schoolIdolFestivalIdReward/fetch: this can be accessed by unlocking a button, cool to see this again especially if you kept your data
 		//
@@ -170,5 +174,11 @@ func Router(r *gin.Engine) {
 		webapi.POST("/accessory", webui.Accessory)
 		webapi.POST("/import_account", webui.ImportAccount)
 		webapi.POST("/export_account", webui.ExportAccount)
+		webapi.POST("/reset_story_main", webui.ResetProgress)
+		webapi.POST("/reset_story_side", webui.ResetProgress)
+		webapi.POST("/reset_story_member", webui.ResetProgress)
+		webapi.POST("/reset_story_linkage", webui.ResetProgress)
+		webapi.POST("/reset_story_event", webui.ResetProgress)
+		webapi.POST("/reset_dlp", webui.ResetProgress)
 	}
 }

@@ -41,6 +41,7 @@ func InitTables(overwrite bool) {
 	// TODO: redesign this to not store merged data, maybe
 
 	InitTable("u_resource", UserResource{}, overwrite)
+	InitTable("u_live_state", model.LiveState{}, true) // always nuke the live state db because we might have a new format for it
 }
 
 func init() {

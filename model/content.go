@@ -128,7 +128,7 @@ func (gui *GradeUpItem) ID() int64 {
 	return int64(gui.ItemMasterID)
 }
 func (gui *GradeUpItem) FromContent(content Content) {
-	if content.ContentType != enum.ContentTypeCardExchange { // 13
+	if content.ContentType != enum.ContentTypeGradeUpper { // 13
 		panic(fmt.Sprintln("Wrong content for GradeUpItem: ", content))
 	}
 	gui.ItemMasterID = content.ContentID
@@ -136,7 +136,7 @@ func (gui *GradeUpItem) FromContent(content Content) {
 }
 func (gui *GradeUpItem) ToContent() Content {
 	return Content{
-		ContentType:   enum.ContentTypeCardExchange,
+		ContentType:   enum.ContentTypeGradeUpper,
 		ContentID:     gui.ItemMasterID,
 		ContentAmount: gui.Amount,
 	}
@@ -151,7 +151,7 @@ func (ra *RecoverAp) ID() int64 {
 	return int64(ra.RecoveryApMasterID)
 }
 func (ra *RecoverAp) FromContent(content Content) {
-	if content.ContentType != enum.ContentTypeSheetRecoveryAP { // 16
+	if content.ContentType != enum.ContentTypeRecoveryAp { // 16
 		panic(fmt.Sprintln("Wrong content for RecoverAp: ", content))
 	}
 	ra.RecoveryApMasterID = content.ContentID
@@ -159,7 +159,7 @@ func (ra *RecoverAp) FromContent(content Content) {
 }
 func (ra *RecoverAp) ToContent() Content {
 	return Content{
-		ContentType:   enum.ContentTypeSheetRecoveryAP,
+		ContentType:   enum.ContentTypeRecoveryAp,
 		ContentID:     ra.RecoveryApMasterID,
 		ContentAmount: ra.Amount,
 	}
@@ -174,7 +174,7 @@ func (rl *RecoverLp) ID() int64 {
 	return int64(rl.RecoveryLpMasterID)
 }
 func (rl *RecoverLp) FromContent(content Content) {
-	if content.ContentType != enum.ContentTypeRecoveryLP { // 17
+	if content.ContentType != enum.ContentTypeRecoveryLp { // 17
 		panic(fmt.Sprintln("Wrong content for RecoverLp: ", content))
 	}
 	rl.RecoveryLpMasterID = content.ContentID
@@ -182,7 +182,7 @@ func (rl *RecoverLp) FromContent(content Content) {
 }
 func (rl *RecoverLp) ToContent() Content {
 	return Content{
-		ContentType:   enum.ContentTypeRecoveryLP,
+		ContentType:   enum.ContentTypeRecoveryLp,
 		ContentID:     rl.RecoveryLpMasterID,
 		ContentAmount: rl.Amount,
 	}
@@ -223,7 +223,7 @@ func (alui *AccessoryLevelUpItem) ID() int64 {
 	return int64(alui.AccessoryLevelUpItemMasterID)
 }
 func (alui *AccessoryLevelUpItem) FromContent(content Content) {
-	if content.ContentType != enum.ContentTypeAccessoryLevelUpItem { // 24
+	if content.ContentType != enum.ContentTypeAccessoryLevelUp { // 24
 		panic(fmt.Sprintln("Wrong content for AccessoryLevelUpItem: ", content))
 	}
 	alui.AccessoryLevelUpItemMasterID = content.ContentID
@@ -231,7 +231,7 @@ func (alui *AccessoryLevelUpItem) FromContent(content Content) {
 }
 func (alui *AccessoryLevelUpItem) ToContent() Content {
 	return Content{
-		ContentType:   enum.ContentTypeAccessoryLevelUpItem,
+		ContentType:   enum.ContentTypeAccessoryLevelUp,
 		ContentID:     alui.AccessoryLevelUpItemMasterID,
 		ContentAmount: alui.Amount,
 	}
@@ -246,7 +246,7 @@ func (arui *AccessoryRarityUpItem) ID() int64 {
 	return int64(arui.AccessoryRarityUpItemMasterID)
 }
 func (arui *AccessoryRarityUpItem) FromContent(content Content) {
-	if content.ContentType != enum.ContentTypeAccessoryRarityUpItem { // 25
+	if content.ContentType != enum.ContentTypeAccessoryRarityUp { // 25
 		panic(fmt.Sprintln("Wrong content for AccessoryRarityUpItem: ", content))
 	}
 	arui.AccessoryRarityUpItemMasterID = content.ContentID
@@ -254,7 +254,7 @@ func (arui *AccessoryRarityUpItem) FromContent(content Content) {
 }
 func (arui *AccessoryRarityUpItem) ToContent() Content {
 	return Content{
-		ContentType:   enum.ContentTypeAccessoryRarityUpItem,
+		ContentType:   enum.ContentTypeAccessoryRarityUp,
 		ContentID:     arui.AccessoryRarityUpItemMasterID,
 		ContentAmount: arui.Amount,
 	}
@@ -292,7 +292,7 @@ func (lst *LiveSkipTicket) ID() int64 {
 	return int64(lst.TicketMasterID)
 }
 func (lst *LiveSkipTicket) FromContent(content Content) {
-	if content.ContentType != enum.ContentTypeSkipTicket { // 28
+	if content.ContentType != enum.ContentTypeLiveSkipTicket { // 28
 		panic(fmt.Sprintln("Wrong content for LiveSkipTicket: ", content))
 	}
 	lst.TicketMasterID = content.ContentID
@@ -300,7 +300,7 @@ func (lst *LiveSkipTicket) FromContent(content Content) {
 }
 func (lst *LiveSkipTicket) ToContent() Content {
 	return Content{
-		ContentType:   enum.ContentTypeSkipTicket,
+		ContentType:   enum.ContentTypeLiveSkipTicket,
 		ContentID:     lst.TicketMasterID,
 		ContentAmount: lst.Amount,
 	}
@@ -338,7 +338,7 @@ func (rtcuci *RecoveryTowerCardUsedCountItem) ID() int64 {
 	return int64(rtcuci.RecoveryTowerCardUsedCountTtemMasterID)
 }
 func (rtcuci *RecoveryTowerCardUsedCountItem) FromContent(content Content) {
-	if content.ContentType != enum.ContentTypeTowerRecoveryItem { // 31
+	if content.ContentType != enum.ContentTypeRecoveryTowerCardUsedCount { // 31
 		panic(fmt.Sprintln("Wrong content for RecoveryTowerCardUsedCountItem: ", content))
 	}
 	rtcuci.RecoveryTowerCardUsedCountTtemMasterID = content.ContentID
@@ -346,7 +346,7 @@ func (rtcuci *RecoveryTowerCardUsedCountItem) FromContent(content Content) {
 }
 func (rtcuci *RecoveryTowerCardUsedCountItem) ToContent() Content {
 	return Content{
-		ContentType:   enum.ContentTypeTowerRecoveryItem,
+		ContentType:   enum.ContentTypeRecoveryTowerCardUsedCount,
 		ContentID:     rtcuci.RecoveryTowerCardUsedCountTtemMasterID,
 		ContentAmount: rtcuci.Amount,
 	}

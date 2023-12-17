@@ -70,16 +70,22 @@ type LiveDaily struct {
 	RemainingRecoveryCount int `json:"remaining_recovery_count"`
 }
 
+type LiveTowerStatus struct {
+	TowerID int `xorm:"'tower_id'" json:"tower_id"`
+	FloorNo int `xorm:"'floor_no'" json:"floor_no"`
+}
+
 // LiveStartReq ...
 type LiveStartReq struct {
-	LiveDifficultyID    int  `json:"live_difficulty_id"`
-	DeckID              int  `json:"deck_id"`
-	CellID              *int `json:"cell_id"`
-	PartnerUserID       int  `json:"partner_user_id"`
-	PartnerCardMasterID int  `json:"partner_card_master_id"`
-	LpMagnification     int  `json:"lp_magnification"`
-	IsAutoPlay          bool `json:"is_auto_play"`
-	IsReferenceBook     bool `json:"is_reference_book"`
+	LiveDifficultyID    int              `json:"live_difficulty_id"`
+	DeckID              int              `json:"deck_id"`
+	CellID              *int             `json:"cell_id"`
+	PartnerUserID       int              `json:"partner_user_id"`
+	PartnerCardMasterID int              `json:"partner_card_master_id"`
+	LpMagnification     int              `json:"lp_magnification"`
+	IsAutoPlay          bool             `json:"is_auto_play"`
+	IsReferenceBook     bool             `json:"is_reference_book"`
+	LiveTowerStatus     *LiveTowerStatus `json:"live_tower_status"`
 }
 
 // LivePartnerInfo ...
@@ -101,71 +107,24 @@ type LiveStartLivePartner struct {
 	} `xorm:"extends" json:"introduction_message"`
 }
 
+
+
+
 // the state of the song user is playing
 // sent to user in /live/Start
 // stored necessary info to recover full state in db
 // each user can only have 1 live state stored in db
 type LiveState struct {
-	UserID    int   `xorm:"pk 'user_id'" json:"-"`
-	LiveID    int64 `xorm:"'live_id'" json:"live_id"`
-	LiveType  int   `json:"live_type"`
-	DeckID    int   `xorm:"-" json:"deck_id"` // get from user status
-	LiveStage struct {
-		LiveDifficultyID int `json:"live_difficulty_id"` // get from user status
-		// get from song db
-		LiveNotes        []LiveNote        `json:"live_notes"`
-		LiveWaveSettings []LiveWaveSetting `json:"live_wave_settings"`
-		NoteGimmicks     []NoteGimmick     `json:"note_gimmicks"`
-		StageGimmickDict []any             `json:"stage_gimmick_dict"`
-	} `xorm:"-" json:"live_stage"`
+	UserID          int             `xorm:"pk 'user_id'" json:"-"`
+	LiveID          int64           `xorm:"'live_id'" json:"live_id"`
+	LiveType        int             `json:"live_type"`
+	DeckID          int             `xorm:"-" json:"deck_id"` // get from user status
+	LiveStage       LiveStage       `xorm:"-" json:"live_stage"`
 	PartnerUserID   int             `xorm:"partner_user_id" json:"-"`
 	LivePartnerCard PartnerCardInfo `xorm:"extends" json:"live_partner_card"`
 	IsPartnerFriend bool            `json:"is_partner_friend"`
 	CellID          *int            `xorm:"'cell_id' "json:"cell_id"`
-	TowerLive       *int            `json:"tower_live"`
-}
-
-// LiveStageInfo ...
-type LiveStageInfo struct {
-	LiveDifficultyID int               `json:"live_difficulty_id"`
-	LiveNotes        []LiveNote        `json:"live_notes"`
-	LiveWaveSettings []LiveWaveSetting `json:"live_wave_settings"`
-	NoteGimmicks     []NoteGimmick     `json:"note_gimmicks"`
-	StageGimmickDict []any             `json:"stage_gimmick_dict"`
-}
-
-// LiveNotes ...
-type LiveNote struct {
-	ID                  int `json:"id"`
-	CallTime            int `json:"call_time"`
-	NoteType            int `json:"note_type"`
-	NotePosition        int `json:"note_position"`
-	GimmickID           int `json:"gimmick_id"`
-	NoteAction          int `json:"note_action"`
-	WaveID              int `json:"wave_id"`
-	NoteRandomDropColor int `json:"note_random_drop_color"`
-	AutoJudgeType       int `json:"auto_judge_type"`
-}
-
-// LiveWaveSetting
-type LiveWaveSetting struct {
-	ID            int `json:"id"`
-	WaveDamage    int `json:"wave_damage"`
-	MissionType   int `json:"mission_type"`
-	Arg1          int `json:"arg_1"`
-	Arg2          int `json:"arg_2"`
-	RewardVoltage int `json:"reward_voltage"`
-}
-
-// NoteGimmick
-type NoteGimmick struct {
-	UniqID          int `json:"uniq_id"`
-	ID              int `json:"id"`
-	NoteGimmickType int `json:"note_gimmick_type"`
-	Arg1            int `json:"arg_1"`
-	Arg2            int `json:"arg_2"`
-	EffectMID       int `json:"effect_m_id"`
-	IconType        int `json:"icon_type"`
+	// TowerLive       *LiveTowerStatus            `xorm:"extends" json:"tower_live"`
 }
 
 // MemberLovePanels ...
@@ -198,6 +157,6 @@ func init() {
 	}
 	TableNameToInterface["u_live_deck"] = UserLiveDeck{}
 	TableNameToInterface["u_live_party"] = UserLiveParty{}
-	TableNameToInterface["u_live_state"] = LiveState{}
+	// TableNameToInterface["u_live_state"] = LiveState{}
 	TableNameToInterface["u_play_list"] = UserPlayListItem{}
 }

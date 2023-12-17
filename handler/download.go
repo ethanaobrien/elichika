@@ -32,8 +32,7 @@ func GetPackUrl(ctx *gin.Context) {
 		cdnMasterVersion = "b66ec2295e9a00aa"
 	}
 	for _, pack := range packNames {
-
-		packUrls = append(packUrls, config.Conf.CdnServer+"/"+cdnMasterVersion+"/"+pack)
+		packUrls = append(packUrls, *config.Conf.CdnServer+"/"+cdnMasterVersion+"/"+pack)
 	}
 
 	packBody, _ := sjson.Set("{}", "url_list", packUrls)

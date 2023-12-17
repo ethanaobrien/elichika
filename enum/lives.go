@@ -1,9 +1,32 @@
 package enum
 
 const (
-	LiveFinishStatusCleared  = 1
-	LiveFinishStatusFailure  = 11
-	LiveFinishStatusUserExit = 12
+	LiveFinishStatusSucceeded = 0x00000001
+	LiveFinishStatusFailure   = 0x0000000b
+	LiveFinishStatusRetired   = 0x0000000c
+	LiveFinishStatusSurrender = 0x00000015
+)
+
+const (
+	LiveUnlockPatternOpen                 = 0x00000001
+	LiveUnlockPatternRequiringStoryMain   = 0x00000002 // no longer necessary after the last update
+	LiveUnlockPatternClosed               = 0x00000003
+	LiveUnlockPatternMemberStory          = 0x00000004
+	LiveUnlockPatternCoopOnly             = 0x00000005
+	LiveUnlockPatternTowerOnly            = 0x00000006
+	LiveUnlockPatternExtra                = 0x00000007
+	LiveUnlockPatternPlayableTutorialOnly = 0x00000008
+	LiveUnlockPatternStoryOnly            = 0x00000009
+	LiveUnlockPatternDaily                = 0x0000000a
+)
+
+const (
+	LiveDifficultyTypeNormal         = 0x0000000a // 10
+	LiveDifficultyTypeHard           = 0x00000014 // 20
+	LiveDifficultyTypeExpert         = 0x0000001e // 30
+	LiveDifficultyTypeExpertPlus     = 0x00000023 // 35
+	LiveDifficultyTypeExpertPlusPlus = 0x00000025 // 37
+	LiveDifficultyTypeMaster         = 0x00000028 // 40
 )
 
 var (

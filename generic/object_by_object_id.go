@@ -1,7 +1,6 @@
 package generic
 
 import (
-	"elichika/model"
 	"elichika/utils"
 
 	"reflect"
@@ -115,11 +114,11 @@ func (oboid *ObjectByObjectIDList[T]) AppendNewWithID(id int64) *T {
 	return &oboid.Objects[oboid.Length-1]
 }
 
-func (oboid *ObjectByObjectIDList[T]) ToContents() []model.Content {
-	contents := []model.Content{}
+func (oboid *ObjectByObjectIDList[T]) ToContents() []any {
+	contents := []any{}
 	for i := range oboid.Objects {
 		contents = append(contents, reflect.ValueOf(&oboid.Objects[i]).MethodByName("ToContent").
-			Call([]reflect.Value{})[0].Interface().(model.Content))
+			Call([]reflect.Value{})[0].Interface())
 	}
 	return contents
 }

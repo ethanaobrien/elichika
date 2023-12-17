@@ -42,7 +42,7 @@ func OpenMemberLovePanel(ctx *gin.Context) {
 			// TODO: remove magic id from love panel system
 			panel.LevelUp()
 			session.AddTriggerBasic(model.TriggerBasic{
-				InfoTriggerType: enum.InfoTriggerTypeUnlockBondBoard,
+				InfoTriggerType: enum.InfoTriggerTypeMemberLovePanelNew,
 				ParamInt:        panel.LovePanelLevel*1000 + panel.MemberID})
 		}
 	}

@@ -75,7 +75,7 @@ func updateClientDb(baseDir string, masterdataRefs []string) {
 	os.MkdirAll(config.StaticDataPath+newVersion+"/", 0755)
 	if newVersion == oldVersion {
 		// check for integrity  of the data
-		fmt.Println("Perform integrity check for version: ", oldVersion)
+		fmt.Println("Performing integrity check for version: ", oldVersion)
 		updated := false
 		for _, m := range mMap {
 			for i := range m.Files {

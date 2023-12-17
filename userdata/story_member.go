@@ -11,8 +11,8 @@ import (
 func (session *Session) InsertMemberStory(storyMemberMasterID int) {
 	// this is correct, but it is obsolete since the client unlock all the bond episode when
 	// unlock scene type 4 is set
-	// setting UnlockSceneStatusInitial also works but there's no fancy animation so might as well save 1 request
-	session.UnlockScene(enum.UnlockSceneTypeStoryMember, enum.UnlockSceneStatusUnlocked)
+	// setting UnlockSceneStatusOpen also works but there's no fancy animation so might as well save 1 request
+	session.UnlockScene(enum.UnlockSceneTypeStoryMember, enum.UnlockSceneStatusOpened)
 	userStoryMember := model.UserStoryMember{
 		UserID:              session.UserStatus.UserID,
 		StoryMemberMasterID: storyMemberMasterID,

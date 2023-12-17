@@ -1,33 +1,34 @@
 package enum
 
 const (
-	// from m_content_setting, maybe this can be loaded by DB but meh
-	ContentTypeSnsCoin               = 1
-	ContentTypeCard                  = 3
-	ContentTypeCardExp               = 4
-	ContentTypeGachaPoint            = 5
-	ContentTypeLessonEnhancingItem   = 6
-	ContentTypeSuit                  = 7
-	ContentTypeVoice                 = 8
-	ContentTypeGachaTicket           = 9
-	ContentTypeGameMoney             = 10
-	ContentTypeTrainingMaterial      = 12
-	ContentTypeCardExchange          = 13 // grade up items
-	ContentTypeEmblem                = 15
-	ContentTypeSheetRecoveryAP       = 16
-	ContentTypeRecoveryLP            = 17
-	ContentTypeStorySide             = 19
-	ContentTypeStoryMember           = 20
-	ContentTypeExchangeEventPoint    = 21
-	ContentTypeAccessory             = 23
-	ContentTypeAccessoryLevelUpItem  = 24
-	ContentTypeAccessoryRarityUpItem = 25
-	ContentTypeCustomBackground      = 26
-	ContentTypeEventMarathonBooster  = 27
-	ContentTypeSkipTicket            = 28
-	ContentTypeStoryEventUnlock      = 30
-	// 31 32 33 don't have clear definition but they can rerecovered from other tables / context
-	ContentTypeTowerRecoveryItem      = 31 // found in m_mission_reward by cross referencing content_id (known to be 24001)
-	ContentTypeSubscriptionCoin       = 32 // found in m_trade as currency
-	ContentTypeMemberGuildSupportItem = 33 // found in m_mission_reward by cross referencing content_id (known to be 27002)
+	// from decompiled source
+	ContentTypeSnsCoin                    = 0x00000001
+	ContentTypeCard                       = 0x00000003
+	ContentTypeCardExp                    = 0x00000004
+	ContentTypeGachaPoint                 = 0x00000005
+	ContentTypeLessonEnhancingItem        = 0x00000006
+	ContentTypeSuit                       = 0x00000007
+	ContentTypeVoice                      = 0x00000008
+	ContentTypeGachaTicket                = 0x00000009
+	ContentTypeGameMoney                  = 0x0000000a
+	ContentTypeTrainingMaterial           = 0x0000000c
+	ContentTypeGradeUpper                 = 0x0000000d
+	ContentTypeGiftBox                    = 0x0000000e
+	ContentTypeEmblem                     = 0x0000000f
+	ContentTypeRecoveryAp                 = 0x00000010
+	ContentTypeRecoveryLp                 = 0x00000011
+	ContentTypeStorySide                  = 0x00000013
+	ContentTypeStoryMember                = 0x00000014
+	ContentTypeExchangeEventPoint         = 0x00000015
+	ContentTypeAccessory                  = 0x00000017
+	ContentTypeAccessoryLevelUp           = 0x00000018
+	ContentTypeAccessoryRarityUp          = 0x00000019
+	ContentTypeCustomBackground           = 0x0000001a
+	ContentTypeEventMarathonBooster       = 0x0000001b
+	ContentTypeLiveSkipTicket             = 0x0000001c
+	ContentTypeEventMiningBooster         = 0x0000001d
+	ContentTypeStoryEventUnlock           = 0x0000001e
+	ContentTypeRecoveryTowerCardUsedCount = 0x0000001f
+	ContentTypeSubscriptionCoin           = 0x00000020
+	ContentTypeMemberGuildSupport         = 0x00000021
 )

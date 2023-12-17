@@ -23,7 +23,7 @@ func SaveUnlockedScene(ctx *gin.Context) {
 	session := userdata.GetSession(ctx, userID)
 	defer session.Close()
 	for _, sceneType := range req.UnlockSceneTypes {
-		session.UnlockScene(sceneType, enum.UnlockSceneStatusUnlocked)
+		session.UnlockScene(sceneType, enum.UnlockSceneStatusOpened)
 	}
 
 	signBody := session.Finalize("{}", "user_model")

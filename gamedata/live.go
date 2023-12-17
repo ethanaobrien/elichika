@@ -19,7 +19,7 @@ type Live struct {
 	LiveMemberMapping   LiveMemberMapping `xorm:"-"`
 	LiveMemberMappingID *int              `xorm:"'live_member_mapping_id'"`
 
-	// Name string
+	Name string `xorm:"'name'"`
 	// Pronunciation string
 	MemberGroup int  `xorm:"'member_group'"`
 	MemberUnit  *int `xorm:"'member_unit'"`
@@ -32,6 +32,10 @@ type Live struct {
 
 	// from m_live_difficulty
 	LiveDifficulties []*LiveDifficulty `xorm:"-"`
+
+	// from m_live, m_live_difficulty, and dictionary
+
+	Gamedata *Gamedata `xorm:"-"`
 }
 
 func init() {
@@ -44,7 +48,9 @@ func loadLive(gamedata *Gamedata, masterdata_db, serverdata_db *xorm.Session, di
 	gamedata.Live = make(map[int]*Live)
 	err := masterdata_db.Table("m_live").Find(&gamedata.Live)
 	utils.CheckErr(err)
-	for id := range gamedata.Live {
-		gamedata.Live[id].LiveMemberMapping = gamedata.LiveMemberMapping[*gamedata.Live[id].LiveMemberMappingID]
+	for _, live := range gamedata.Live {
+		live.LiveMemberMapping = gamedata.LiveMemberMapping[*live.LiveMemberMappingID]
+		live.Name = dictionary.Resolve(live.Name)
+		live.Gamedata = gamedata
 	}
 }

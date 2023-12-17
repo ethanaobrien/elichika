@@ -148,37 +148,37 @@ func init() {
 	resourceHandler[enum.ContentTypeTrainingMaterial] = genericResourceHandler // training items (macarons, memorials)
 	userModelField[enum.ContentTypeTrainingMaterial] = "UserTrainingMaterialByItemID"
 
-	resourceHandler[enum.ContentTypeCardExchange] = genericResourceHandler // card grade up items
-	userModelField[enum.ContentTypeCardExchange] = "UserGradeUpItemByItemID"
+	resourceHandler[enum.ContentTypeGradeUpper] = genericResourceHandler // card grade up items
+	userModelField[enum.ContentTypeGradeUpper] = "UserGradeUpItemByItemID"
 
-	resourceHandler[enum.ContentTypeSheetRecoveryAP] = genericResourceHandler // training ticket
-	userModelField[enum.ContentTypeSheetRecoveryAP] = "UserRecoveryApByID"
+	resourceHandler[enum.ContentTypeRecoveryAp] = genericResourceHandler // training ticket
+	userModelField[enum.ContentTypeRecoveryAp] = "UserRecoveryApByID"
 
-	resourceHandler[enum.ContentTypeRecoveryLP] = genericResourceHandler // lp candies
-	userModelField[enum.ContentTypeRecoveryLP] = "UserRecoveryLpByID"
+	resourceHandler[enum.ContentTypeRecoveryLp] = genericResourceHandler // lp candies
+	userModelField[enum.ContentTypeRecoveryLp] = "UserRecoveryLpByID"
 
 	// generics exchange point (SBL / DLP)
 	// also include channel exchanges
 	resourceHandler[enum.ContentTypeExchangeEventPoint] = genericResourceHandler
 	userModelField[enum.ContentTypeExchangeEventPoint] = "UserExchangeEventPointByID"
 
-	resourceHandler[enum.ContentTypeAccessoryLevelUpItem] = genericResourceHandler // accessory stickers
-	userModelField[enum.ContentTypeAccessoryLevelUpItem] = "UserAccessoryLevelUpItemByID"
+	resourceHandler[enum.ContentTypeAccessoryLevelUp] = genericResourceHandler // accessory stickers
+	userModelField[enum.ContentTypeAccessoryLevelUp] = "UserAccessoryLevelUpItemByID"
 
-	resourceHandler[enum.ContentTypeAccessoryRarityUpItem] = genericResourceHandler // accessory rarity up items
-	userModelField[enum.ContentTypeAccessoryRarityUpItem] = "UserAccessoryRarityUpItemByID"
+	resourceHandler[enum.ContentTypeAccessoryRarityUp] = genericResourceHandler // accessory rarity up items
+	userModelField[enum.ContentTypeAccessoryRarityUp] = "UserAccessoryRarityUpItemByID"
 
 	resourceHandler[enum.ContentTypeEventMarathonBooster] = genericResourceHandler // marathon boosters
 	userModelField[enum.ContentTypeEventMarathonBooster] = "UserEventMarathonBoosterByID"
 
-	resourceHandler[enum.ContentTypeSkipTicket] = genericResourceHandler // skip tickets
-	userModelField[enum.ContentTypeSkipTicket] = "UserLiveSkipTicketByID"
+	resourceHandler[enum.ContentTypeLiveSkipTicket] = genericResourceHandler // skip tickets
+	userModelField[enum.ContentTypeLiveSkipTicket] = "UserLiveSkipTicketByID"
 
 	resourceHandler[enum.ContentTypeStoryEventUnlock] = genericResourceHandler // event story unlock key
 	userModelField[enum.ContentTypeStoryEventUnlock] = "UserStoryEventUnlockItemByID"
 
-	resourceHandler[enum.ContentTypeTowerRecoveryItem] = genericResourceHandler // dlp water bottle
-	userModelField[enum.ContentTypeTowerRecoveryItem] = "UserRecoveryTowerCardUsedCountItemByRecoveryTowerCardUsedCountItemMasterID"
+	resourceHandler[enum.ContentTypeRecoveryTowerCardUsedCount] = genericResourceHandler // dlp water bottle
+	userModelField[enum.ContentTypeRecoveryTowerCardUsedCount] = "UserRecoveryTowerCardUsedCountItemByRecoveryTowerCardUsedCountItemMasterID"
 
 	resourceHandler[enum.ContentTypeStoryMember] = memberStoryHandler
 	resourceHandler[enum.ContentTypeVoice] = voiceHandler
@@ -322,12 +322,11 @@ func (session *Session) populateGenericResourceDiffFromUserModel() {
 		if !ok {
 			panic(fmt.Sprintln("Type ", rObjectPtrType, " must have method ToContents"))
 		}
-		contents := rObjectToContents.Func.Call([]reflect.Value{rObject.Addr()})[0].Interface().([](model.Content))
+		contents := rObjectToContents.Func.Call([]reflect.Value{rObject.Addr()})[0].Interface().([]any)
 		for _, content := range contents {
-
 			session.UpdateUserResource(UserResource{
 				UserID:  session.UserStatus.UserID,
-				Content: content,
+				Content: content.(model.Content),
 			})
 		}
 	}

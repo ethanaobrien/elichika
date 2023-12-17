@@ -23,12 +23,12 @@ func (session *Session) InsertUserStoryMain(storyMainMasterID int) bool {
 	// ID is from m_story_main_cell, so maybe load it instead of hard coding
 	switch storyMainMasterID {
 	case 1007: // k.m_lesson_menu_select_unlock_hint
-		session.UnlockScene(enum.UnlockSceneTypeLessonMenuSelect, enum.UnlockSceneStatusInitial)
+		session.UnlockScene(enum.UnlockSceneTypeLesson, enum.UnlockSceneStatusOpen)
 	case 1009: // k.m_live_music_select_unlock_hint
-		session.UnlockScene(enum.UnlockSceneTypeLiveMusicSelect, enum.UnlockSceneStatusInitial)
+		session.UnlockScene(enum.UnlockSceneTypeFreeLive, enum.UnlockSceneStatusOpen)
 	case 1018: // k.m_accessory_list_unlock_hint
-		session.UnlockScene(enum.UnlockSceneTypeAccessoryList, enum.UnlockSceneStatusInitial)
-		session.UnlockScene(enum.UnlockSceneTypeReferenceBookSelect, enum.UnlockSceneStatusInitial)
+		session.UnlockScene(enum.UnlockSceneTypeAccessory, enum.UnlockSceneStatusOpen)
+		session.UnlockScene(enum.UnlockSceneTypeReferenceBookSelect, enum.UnlockSceneStatusOpen)
 	default:
 	}
 	return true

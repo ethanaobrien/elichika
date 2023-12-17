@@ -12,6 +12,7 @@ import (
 	"elichika/utils"
 
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -132,7 +133,7 @@ func LiveFinish(ctx *gin.Context) {
 	utils.CheckErr(err)
 	exist, liveState := userdata.LoadLiveState(userID)
 	utils.MustExist(exist)
-
+	fmt.Println(liveState)
 	session := userdata.GetSession(ctx, userID)
 	defer session.Close()
 	liveState.DeckID = session.UserStatus.LatestLiveDeckID
@@ -168,7 +169,7 @@ func LiveFinish(ctx *gin.Context) {
 		LiveFinishStatus:       req.LiveFinishStatus}
 
 	liveRecord.PlayCount++
-	lastPlayDeck.IsCleared = req.LiveFinishStatus == enum.LiveFinishStatusCleared
+	lastPlayDeck.IsCleared = req.LiveFinishStatus == enum.LiveFinishStatusSucceeded
 	liveResult.LiveResultAchievements.AppendNewWithID(1).IsAlreadyAchieved = liveRecord.ClearedDifficultyAchievement1 != nil
 	liveResult.LiveResultAchievements.AppendNewWithID(2).IsAlreadyAchieved = liveRecord.ClearedDifficultyAchievement2 != nil
 	liveResult.LiveResultAchievements.AppendNewWithID(3).IsAlreadyAchieved = liveRecord.ClearedDifficultyAchievement3 != nil

@@ -1,20 +1,19 @@
-elichika.exe
 elichika
 
-data
-static
+static/
 
-assets
+assets/
 
-config.json
-
-userdata.db
-serverdata.db
-
-*.backup
 
 .vscode/
 
-*.txt
 
 backup/
+
+
+*.exe
+*.txt
+*.db
+*.backup
+*.json
+*.sql
