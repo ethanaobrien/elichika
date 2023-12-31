@@ -160,6 +160,10 @@ func Router(r *gin.Engine) {
 		// DLP stuff, can be accessed by editing the database to have a DLP session going on
 		api.POST("/tower/fetchTowerSelect", handler.FetchTowerSelect)
 		api.POST("/tower/fetchTowerTop", handler.FetchTowerTop)
+		api.POST("/tower/clearedTowerFloor", handler.ClearedTowerFloor) // dlp story
+		api.POST("/tower/recoveryTowerCardUsed", handler.RecoveryTowerCardUsed)
+		api.POST("/tower/recoveryTowerCardUsedAll", handler.RecoveryTowerCardUsedAll)
+		api.POST("/towerRanking/fetchTowerRanking", handler.FetchTowerRanking)
 
 		// TODO:
 		// /schoolIdolFestivalIdReward/fetch: this can be accessed by unlocking a button, cool to see this again especially if you kept your data

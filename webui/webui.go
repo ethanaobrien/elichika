@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: it's possible to replace serial.llas.bushimo.jp and use that button to redirect here from inside the game, maybe I'll do it one day
+// TODO: it's possible to replace serial.llas.bushimo.jp and use that button to redirect here from inside the game
 const commonPrefix = "/webui/response.html?response="
 
 func Common(ctx *gin.Context) {

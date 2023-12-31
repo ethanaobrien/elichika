@@ -41,7 +41,7 @@ func (this *LiveDifficulty) Condition(fields []parser.Field) string {
 }
 
 func handleLiveDifficultyEvent(event parser.ModifierEvent[LiveDifficulty]) {
-	var dummy LiveDifficulty 
+	var dummy LiveDifficulty
 	if event.Type == parser.DELETE { // if deleted then we can add it back
 		event.Type = parser.INSERT
 		recoveredLiveDifficulty[dummy.ID(event.Fields)] = true

@@ -17,3 +17,4 @@ backup/
 *.backup
 *.json
 *.sql
+template.go

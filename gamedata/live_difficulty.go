@@ -1,11 +1,11 @@
 package gamedata
 
 import (
+	"elichika/config"
 	"elichika/dictionary"
 	"elichika/enum"
 	"elichika/model"
 	"elichika/utils"
-	"elichika/config"
 
 	"encoding/json"
 	"fmt"
@@ -113,13 +113,13 @@ func (this *LiveDifficulty) loadSimpleLiveStage(gamedata *Gamedata) {
 	if (liveNotes == "") || (this.UnlockPattern == enum.LiveUnlockPatternTowerOnly) {
 
 		// song doesn't exist, use rule to find the original map
-		if (this.UnlockPattern != enum.LiveUnlockPatternTowerOnly){
+		if this.UnlockPattern != enum.LiveUnlockPatternTowerOnly {
 			// only accept event songs, SBL, or DLP
 			return
 		}
 		originalLiveID := this.Live.LiveID%10000 + 10000
 		for _, other := range gamedata.Live[originalLiveID].LiveDifficulties {
-			if (other.NoteEmitMsec == this.NoteEmitMsec) &&  (other.LiveDifficultyType == this.LiveDifficultyType) {
+			if (other.NoteEmitMsec == this.NoteEmitMsec) && (other.LiveDifficultyType == this.LiveDifficultyType) {
 				other.loadSimpleLiveStage(gamedata)
 				if other.SimpleLiveStage != nil {
 					this.SimpleLiveStage = other.SimpleLiveStage
@@ -167,7 +167,7 @@ func (this *LiveDifficulty) ConstructLiveStage(gamedata *Gamedata) {
 		return
 	}
 
-	if !config.GenerateStageFromScratch { // load generated stage, it must exists 
+	if !config.GenerateStageFromScratch { // load generated stage, it must exists
 		text := utils.ReadAllText(fmt.Sprintf("assets/stages/%d.json", this.LiveDifficultyID))
 		if text == "" {
 			panic(fmt.Sprintf("Stage %d doesn't exists in assets/stages"))
@@ -177,7 +177,7 @@ func (this *LiveDifficulty) ConstructLiveStage(gamedata *Gamedata) {
 		if err != nil {
 			panic(fmt.Sprintf("Failed to load stage %d: wrong format"))
 		}
-		return 
+		return
 	}
 
 	this.loadSimpleLiveStage(gamedata)
@@ -199,7 +199,7 @@ func (this *LiveDifficulty) ConstructLiveStage(gamedata *Gamedata) {
 	this.LiveStage.LiveNotes = append(this.LiveStage.LiveNotes, this.SimpleLiveStage.LiveNotes...)
 	for i := range this.LiveStage.LiveNotes {
 		this.LiveStage.LiveNotes[i].ID = i + 1
-		this.LiveStage.LiveNotes[i].AutoJudgeType = enum.JudgeTypeGreat // can be overwritten at runtime
+		this.LiveStage.LiveNotes[i].AutoJudgeType = enum.JudgeTypeGreat         // can be overwritten at runtime
 		this.LiveStage.LiveNotes[i].NoteRandomDropColor = enum.NoteDropColorNon // can be overwritten at runtime
 	}
 	this.LiveStage.LiveWaveSettings = append(this.LiveStage.LiveWaveSettings, this.SimpleLiveStage.LiveWaveSettings...)
@@ -244,7 +244,7 @@ func (this *LiveDifficulty) ConstructLiveStage(gamedata *Gamedata) {
 	}
 
 	// check against pregenerated map
-	// skip checking for coop (SBL), because the database only has constant modifier while the actual 
+	// skip checking for coop (SBL), because the database only has constant modifier while the actual
 	// data will have some added bonus gimmick
 	// not like we use those map right now anyway
 	if this.UnlockPattern == enum.LiveUnlockPatternCoopOnly {

@@ -3,8 +3,8 @@ package model
 import (
 	"elichika/utils"
 
-	"fmt"
 	"encoding/json"
+	"fmt"
 )
 
 type LiveStage struct {
@@ -13,6 +13,21 @@ type LiveStage struct {
 	LiveWaveSettings []LiveWaveSetting `json:"live_wave_settings"`
 	NoteGimmicks     []NoteGimmick     `json:"note_gimmicks"`
 	StageGimmickDict []any             `json:"stage_gimmick_dict"`
+}
+
+func (this *LiveStage) Copy() LiveStage {
+	result := LiveStage{
+		LiveDifficultyID: this.LiveDifficultyID,
+		LiveNotes:        []LiveNote{},
+		LiveWaveSettings: []LiveWaveSetting{},
+		NoteGimmicks:     []NoteGimmick{},
+		StageGimmickDict: []any{},
+	}
+	result.LiveNotes = append(result.LiveNotes, this.LiveNotes...)
+	result.LiveWaveSettings = append(result.LiveWaveSettings, this.LiveWaveSettings...)
+	result.NoteGimmicks = append(result.NoteGimmicks, this.NoteGimmicks...)
+	result.StageGimmickDict = append(result.StageGimmickDict, this.StageGimmickDict...)
+	return result
 }
 
 func (this *LiveStage) IsSame(other *LiveStage) bool {
@@ -50,7 +65,7 @@ func (this *LiveStage) IsSame(other *LiveStage) bool {
 		}
 	}
 	// fmt.Println("Note Gimmicks OK")
-	if len(this.StageGimmickDict) != len (other.StageGimmickDict) {
+	if len(this.StageGimmickDict) != len(other.StageGimmickDict) {
 		return false
 	}
 	if len(this.StageGimmickDict) > 0 {
@@ -62,7 +77,7 @@ func (this *LiveStage) IsSame(other *LiveStage) bool {
 		if thisID != other.StageGimmickDict[0].(int) {
 			return false
 		}
-		
+
 		thisDict, err = json.Marshal(this.StageGimmickDict[1].([]any)[0])
 		utils.CheckErr(err)
 		thisGimmick := StageGimmick{}

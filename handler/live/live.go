@@ -2,13 +2,15 @@ package live
 
 import (
 	"elichika/config"
+	"elichika/enum"
 	"elichika/gamedata"
 	"elichika/handler"
 	"elichika/model"
+	"elichika/protocol/request"
 	"elichika/userdata"
+	"elichika/utils"
 
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -99,53 +101,64 @@ func FetchLivePartners(ctx *gin.Context) {
 
 func LiveStart(ctx *gin.Context) {
 	reqBody := gjson.Parse(ctx.GetString("reqBody")).Array()[0].String()
-	req := model.LiveStartReq{}
-	if err := json.Unmarshal([]byte(reqBody), &req); err != nil {
-		panic(err)
-	}
+	req := request.LiveStartRequest{}
+	err := json.Unmarshal([]byte(reqBody), &req)
+	utils.CheckErr(err)
 	userID := ctx.GetInt("user_id")
 	session := userdata.GetSession(ctx, userID)
 	defer session.Close()
 	gamedata := ctx.MustGet("gamedata").(*gamedata.Gamedata)
-
 	masterLiveDifficulty := gamedata.LiveDifficulty[req.LiveDifficultyID]
 	masterLiveDifficulty.ConstructLiveStage(gamedata)
-
 	session.UserStatus.LastLiveDifficultyID = req.LiveDifficultyID
 	session.UserStatus.LatestLiveDeckID = req.DeckID
 
 	// 保存请求包因为 /live/finish 接口的响应包里有部分字段不在该接口的请求包里
 	// live is stored in db
-	liveState := model.LiveState{}
-	liveState.UserID = userID
-	liveState.PartnerUserID = req.PartnerUserID
-	liveState.LiveID = time.Now().UnixNano()
-	liveState.LiveType = 1 // not sure what this is
-	liveState.IsPartnerFriend = true
-	liveState.DeckID = req.DeckID
-	liveState.CellID = req.CellID // cell id send player to the correct place after playing, normal live don't have cell id.
-	// liveState.TowerLive = req.LiveTowerStatus
+	live := model.UserLive{
+		UserID:          userID,
+		PartnerUserID:   req.PartnerUserID,
+		LiveID:          time.Now().UnixNano(),
+		LiveType:        enum.LiveTypeManual,
+		IsPartnerFriend: true,
+		DeckID:          req.DeckID,
+		CellID:          req.CellID,
+		IsAutoplay:      req.IsAutoPlay,
+	}
+	live.LiveStage = masterLiveDifficulty.LiveStage.Copy()
 
-	liveState.LiveStage = *masterLiveDifficulty.LiveStage
-	liveState.LiveStage.LiveDifficultyID = req.LiveDifficultyID
+	if req.LiveTowerStatus != nil {
+		// is tower live, fetch this tower
+		// TODO: fetch from database instead
+		userTower := session.GetUserTower(req.LiveTowerStatus.TowerID)
+
+		if userTower.ReadFloor != req.LiveTowerStatus.FloorNo {
+			userTower.ReadFloor = req.LiveTowerStatus.FloorNo
+			session.UpdateUserTower(userTower)
+		}
+		live.TowerLive = model.TowerLive{
+			TowerID:       &req.LiveTowerStatus.TowerID,
+			FloorNo:       &req.LiveTowerStatus.FloorNo,
+			TargetVoltage: &gamedata.Tower[req.LiveTowerStatus.TowerID].Floor[req.LiveTowerStatus.FloorNo].TargetVoltage,
+			StartVoltage:  &userTower.Voltage,
+		}
+		live.LiveType = enum.LiveTypeTower
+	}
+
 	if req.IsAutoPlay {
-		for k := range liveState.LiveStage.LiveNotes {
-			liveState.LiveStage.LiveNotes[k].AutoJudgeType = 30
+		for k := range live.LiveStage.LiveNotes {
+			live.LiveStage.LiveNotes[k].AutoJudgeType = *config.Conf.AutoJudgeType
 		}
 	}
 
 	if req.PartnerUserID != 0 {
-		liveState.LivePartnerCard = session.GetPartnerCardFromUserCard(
+		live.LivePartnerCard = session.GetPartnerCardFromUserCard(
 			userdata.GetOtherUserCard(req.PartnerUserID, req.PartnerCardMasterID))
 	}
 
 	liveStartResp := session.Finalize("{}", "user_model_diff")
-	liveStartResp, _ = sjson.Set(liveStartResp, "live", liveState)
-	fmt.Println(liveStartResp)
-	if req.PartnerUserID == 0 {
-		liveStartResp, _ = sjson.Set(liveStartResp, "live.live_partner_card", nil)
-	}
-	userdata.SaveLiveState(liveState)
+	liveStartResp, _ = sjson.Set(liveStartResp, "live", live)
+	session.SaveUserLive(live)
 	resp := handler.SignResp(ctx, liveStartResp, config.SessionKey)
 
 	ctx.Header("Content-Type", "application/json")

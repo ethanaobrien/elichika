@@ -23,7 +23,7 @@ func (_ *LiveDifficultyNoteGimmick) ID(fields []parser.Field) int64 {
 	liveID, err := strconv.ParseInt(fields[0].Value, 10, 64)
 	utils.CheckErr(err)
 	noteID, err := strconv.ParseInt(fields[1].Value, 10, 64)
-	return liveID * 1000 + noteID
+	return liveID*1000 + noteID
 }
 func (_ *LiveDifficultyNoteGimmick) Value(field parser.Field) string {
 	return field.Value
@@ -38,10 +38,10 @@ func (this *LiveDifficultyNoteGimmick) Condition(fields []parser.Field) string {
 func handleLiveDifficultyNoteGimmickEvent(event parser.ModifierEvent[LiveDifficultyNoteGimmick]) {
 	var dummy LiveDifficultyNoteGimmick
 	if event.Type == parser.DELETE {
-		if recoveredLiveDifficulty[dummy.ID(event.Fields) / 1000] { // only recover the notes for deleted map
+		if recoveredLiveDifficulty[dummy.ID(event.Fields)/1000] { // only recover the notes for deleted map
 			event.Type = parser.INSERT
 		} else {
-			return 
+			return
 		}
 	} else if event.Type == parser.INSERT {
 		return

@@ -8,23 +8,23 @@ import (
 )
 
 type RuntimeConfig struct {
-	CdnServer         *string `json:"cdn_server"`
-	ServerAddress     *string `json:"server_address"`
-	TapBondGain       *int    `json:"tap_bond_gain"`
-	AutoplayJudgeType *int    `json:"auto_judge_type"`
+	CdnServer     *string `json:"cdn_server"`
+	ServerAddress *string `json:"server_address"`
+	TapBondGain   *int    `json:"tap_bond_gain"`
+	AutoJudgeType *int    `json:"auto_judge_type"`
 }
 
 func defaultConfigs() *RuntimeConfig {
 	configs := RuntimeConfig{
-		CdnServer:         new(string), // self-hosted
-		ServerAddress:     new(string),
-		TapBondGain:       new(int),
-		AutoplayJudgeType: new(int),
+		CdnServer:     new(string), // self-hosted
+		ServerAddress: new(string),
+		TapBondGain:   new(int),
+		AutoJudgeType: new(int),
 	}
 	*configs.CdnServer = "https://llsifas.catfolk.party/static/"
 	*configs.ServerAddress = "0.0.0.0:8080"
 	*configs.TapBondGain = 20
-	*configs.AutoplayJudgeType = enum.JudgeTypeGreat
+	*configs.AutoJudgeType = enum.JudgeTypeGreat
 	return &configs
 }
 
@@ -51,8 +51,8 @@ func Load(p string) *RuntimeConfig {
 	if c.TapBondGain == nil {
 		c.TapBondGain = d.TapBondGain
 	}
-	if c.AutoplayJudgeType == nil {
-		c.AutoplayJudgeType = d.AutoplayJudgeType
+	if c.AutoJudgeType == nil {
+		c.AutoJudgeType = d.AutoJudgeType
 	}
 
 	return &c

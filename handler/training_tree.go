@@ -86,12 +86,12 @@ func GradeUpCard(ctx *gin.Context) {
 	card := session.GetUserCard(req.CardMasterID)
 	member := session.GetMember(*masterCard.MemberMasterID)
 	card.Grade++
-	currentBondLevel := gamedata.LoveLevelFromLovePoint(member.LovePointLimit)
-	currentBondLevel += masterCard.CardRarityType / 10 // TODO: Do not hard code this
-	if currentBondLevel > gamedata.MemberLoveLevelCount {
-		currentBondLevel = gamedata.MemberLoveLevelCount
+	currentLoveLevel := gamedata.LoveLevelFromLovePoint(member.LovePointLimit)
+	currentLoveLevel += masterCard.CardRarityType / 10 // TODO: Do not hard code this
+	if currentLoveLevel > gamedata.MemberLoveLevelCount {
+		currentLoveLevel = gamedata.MemberLoveLevelCount
 	}
-	member.LovePointLimit = gamedata.MemberLoveLevelLovePoint[currentBondLevel]
+	member.LovePointLimit = gamedata.MemberLoveLevelLovePoint[currentLoveLevel]
 	session.UpdateUserCard(card)
 	member.IsNew = true
 	session.UpdateMember(member)
@@ -101,8 +101,8 @@ func GradeUpCard(ctx *gin.Context) {
 	// this trigger show the pop up after limit break
 	session.AddTriggerCardGradeUp(model.TriggerCardGradeUp{
 		CardMasterID:         req.CardMasterID,
-		BeforeLoveLevelLimit: currentBondLevel - masterCard.CardRarityType/10,
-		AfterLoveLevelLimit:  currentBondLevel})
+		BeforeLoveLevelLimit: currentLoveLevel - masterCard.CardRarityType/10,
+		AfterLoveLevelLimit:  currentLoveLevel})
 
 	resp := session.Finalize("{}", "user_model_diff")
 	resp = SignResp(ctx, resp, config.SessionKey)

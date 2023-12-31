@@ -46,10 +46,10 @@ func (session *Session) GetPartnerCardFromUserCard(card model.UserCard) model.Pa
 	partnerCard.PassiveSkillLevels = []int{}
 	partnerCard.PassiveSkillLevels = append(partnerCard.PassiveSkillLevels, card.PassiveSkillALevel)
 	partnerCard.PassiveSkillLevels = append(partnerCard.PassiveSkillLevels, card.PassiveSkillBLevel)
-	partnerCard.AdditionalPassiveSkillIds = append(partnerCard.AdditionalPassiveSkillIds, card.AdditionalPassiveSkill1ID)
-	partnerCard.AdditionalPassiveSkillIds = append(partnerCard.AdditionalPassiveSkillIds, card.AdditionalPassiveSkill2ID)
-	partnerCard.AdditionalPassiveSkillIds = append(partnerCard.AdditionalPassiveSkillIds, card.AdditionalPassiveSkill3ID)
-	partnerCard.AdditionalPassiveSkillIds = append(partnerCard.AdditionalPassiveSkillIds, card.AdditionalPassiveSkill4ID)
+	partnerCard.AdditionalPassiveSkillIDs = append(partnerCard.AdditionalPassiveSkillIDs, card.AdditionalPassiveSkill1ID)
+	partnerCard.AdditionalPassiveSkillIDs = append(partnerCard.AdditionalPassiveSkillIDs, card.AdditionalPassiveSkill2ID)
+	partnerCard.AdditionalPassiveSkillIDs = append(partnerCard.AdditionalPassiveSkillIDs, card.AdditionalPassiveSkill3ID)
+	partnerCard.AdditionalPassiveSkillIDs = append(partnerCard.AdditionalPassiveSkillIDs, card.AdditionalPassiveSkill4ID)
 	partnerCard.MemberLovePanels = []int{} // must not be null
 
 	// filling this for a card of self freeze the game
@@ -153,7 +153,7 @@ func (session *Session) FetchProfile(otherUserID int) model.Profile {
 		profile.GuestInfo.LivePartnersCards[i].LivePartnerCategoryMasterId = i + 1
 		profile.GuestInfo.LivePartnersCards[i].PartnerCard.MemberLovePanels = []int{}
 		profile.GuestInfo.LivePartnersCards[i].PartnerCard.PassiveSkillLevels = []int{}
-		profile.GuestInfo.LivePartnersCards[i].PartnerCard.AdditionalPassiveSkillIds = []int{}
+		profile.GuestInfo.LivePartnersCards[i].PartnerCard.AdditionalPassiveSkillIDs = []int{}
 	}
 
 	partnerCards := FetchPartnerCards(otherUserID)

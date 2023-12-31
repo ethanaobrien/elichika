@@ -24,16 +24,7 @@ type MemberGuildRanking struct {
 	MemberGuildRankingList []MemberGuildRankingOneTerm `json:"member_guild_ranking_list"`
 }
 
-type MemberGuildUserRankingUserData struct {
-	UserID                 int           `json:"user_id"`
-	UserName               LocalizedText `json:"user_name"`
-	UserRank               int           `json:"user_rank"`
-	CardMasterID           int           `json:"card_master_id"`
-	Level                  int           `json:"level"`
-	IsAwakening            bool          `json:"is_awakening"`
-	IsAllTrainingActivated bool          `json:"is_all_training_activated"`
-	EmblemMasterID         int           `json:"emblem_master_id"`
-}
+type MemberGuildUserRankingUserData = RankingUser
 
 type MemberGuildUserRankingCell struct {
 	Order                          int64                          `json:"order"`
@@ -42,7 +33,7 @@ type MemberGuildUserRankingCell struct {
 }
 
 type MemberGuildUserRankingBorderInfo struct {
-	RankingOrderPoint int   `json:"ranking_border_point"` // probably the ID
+	RankingOrderPoint int   `json:"ranking_border_point"`
 	UpperRank         int   `json:"upper_rank"`
 	LowerRank         int64 `json:"lower_rank"`
 	DisplayOrder      int   `json:"display_order"`

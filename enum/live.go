@@ -29,6 +29,13 @@ const (
 	LiveDifficultyTypeMaster         = 0x00000028 // 40
 )
 
+const (
+	LiveTypeManual = 0x00000001
+	LiveTypeMv     = 0x00000002
+	LiveTypeCoop   = 0x00000003
+	LiveTypeTower  = 0x00000004
+)
+
 var (
 	// beginner, intermediate, advanced, expert (advanced+), challenge
 	// 40 is also used in network (not in db), but not sure what it represent

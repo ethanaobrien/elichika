@@ -130,7 +130,9 @@ Even more special thanks for the specific individuals:
 
 - YumeMichi for original elichika.
 - triangle for informations and scripts to encode/decode database, as well as patching the clients.
+- rayfirefirst, cppo for various cryptographic keys.
+- tungnotpunk for ios client and help with network structure.
 - Suyooo for the very helpful [SIFAS wiki](https://suyo.be/sifas/wiki/) and for providing more accurate stage data.
 - sarah for hosting public Internet CDN.
 - Caret for the LL Hax discord.
-- And other people who probably deserve to be here but I can't quite recall right now.
+- And other people who more than deserve to be here but I can't quite recall right now.

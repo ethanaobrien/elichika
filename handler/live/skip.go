@@ -90,9 +90,9 @@ func LiveSkip(ctx *gin.Context) {
 		// update member love point
 		isCenter := (i+1 == centerPositions[0])
 		isCenter = isCenter || ((len(centerPositions) > 1) && (i+1 == centerPositions[1]))
-		addedBond := liveDifficulty.RewardBaseLovePoint
+		addedLove := liveDifficulty.RewardBaseLovePoint
 		if isCenter {
-			addedBond += rewardCenterLovePoint
+			addedLove += rewardCenterLovePoint
 		}
 		memberMasterID := gamedata.Card[cardMasterID].Member.ID
 
@@ -100,16 +100,16 @@ func LiveSkip(ctx *gin.Context) {
 		// only use 1 card master id or an idol might be shown multiple times
 		if !exist {
 			memberLoveStatus := skipLiveResult.MemberLoveStatuses.AppendNewWithID(int64(cardMasterID))
-			memberLoveStatus.RewardLovePoint = addedBond
+			memberLoveStatus.RewardLovePoint = addedLove
 			bondCardPosition[memberMasterID] = skipLiveResult.MemberLoveStatuses.Length - 1
 		} else {
-			skipLiveResult.MemberLoveStatuses.Objects[pos].RewardLovePoint += addedBond
+			skipLiveResult.MemberLoveStatuses.Objects[pos].RewardLovePoint += addedLove
 		}
 	}
 	for memberMasterID, pos := range bondCardPosition {
-		addedBond := session.AddLovePoint(memberMasterID,
+		addedLove := session.AddLovePoint(memberMasterID,
 			req.TicketUseCount*skipLiveResult.MemberLoveStatuses.Objects[pos].RewardLovePoint)
-		skipLiveResult.MemberLoveStatuses.Objects[pos].RewardLovePoint = addedBond
+		skipLiveResult.MemberLoveStatuses.Objects[pos].RewardLovePoint = addedLove
 	}
 
 	if liveDifficulty.IsCountTarget { // counted toward target and profiles

@@ -65,7 +65,7 @@ type PartnerCardInfo struct {
 	IsAllTrainingActivated    bool  `json:"is_all_training_activated"`
 	ActiveSkillLevel          int   `json:"active_skill_level"`
 	PassiveSkillLevels        []int `json:"passive_skill_levels"`
-	AdditionalPassiveSkillIds []int `json:"additional_passive_skill_ids"`
+	AdditionalPassiveSkillIDs []int `json:"additional_passive_skill_ids"`
 	MaxFreePassiveSkill       int   `json:"max_free_passive_skill"`
 	TrainingStamina           int   `json:"training_stamina"`
 	TrainingAppeal            int   `json:"training_appeal"`

@@ -3,7 +3,7 @@
 // the data are stored in both masterdata.db and serverdata.db
 // some data are loaded only from one of the 2, but some data need boths
 //
-// eventually no handling function should interact with the db and only interact with this package
+// no handling function should interact with the master/server data db and only interact with this package
 // this is done both to reduce the time necessary to look into db, as well as to simplify accessing data to the most
 // relevant id, instead of having to access multiple tables or use magic id system
 // for example, everything related to a single card / accessory will use that card / accessory master id as id
@@ -109,6 +109,8 @@ type Gamedata struct {
 	GachaDraw      map[int]*GachaDraw
 	GachaGroup     map[int]*GachaGroup
 	GachaGuarantee map[int]*GachaGuarantee
+
+	Tower map[int]*Tower
 
 	Trade        map[int]*model.Trade // map from TradeID to Trade
 	TradesByType [3][]*model.Trade    // map from trade type to array of Trade

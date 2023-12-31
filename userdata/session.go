@@ -38,6 +38,7 @@ type Session struct {
 	UserTriggerCardGradeUpMapping             generic.ObjectByObjectIDMapping[model.TriggerCardGradeUp]
 	UserTriggerBasicMapping                   generic.ObjectByObjectIDMapping[model.TriggerBasic]
 	UserTriggerMemberLoveLevelUpMapping       generic.ObjectByObjectIDMapping[model.TriggerMemberLoveLevelUp]
+	UserTowerMapping                          generic.ObjectByObjectIDMapping[model.UserTower]
 	// TODO: change the map to index map?
 	UserMemberLovePanelDiffs map[int]model.UserMemberLovePanel
 	UserMemberLovePanels     []model.UserMemberLovePanel
