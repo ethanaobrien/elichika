@@ -156,48 +156,51 @@ func CreateNewAccount(ctx *gin.Context, userID int, passWord string) int {
 	{ // show formation
 		liveDecks := []model.UserLiveDeck{}
 		liveParties := []model.UserLiveParty{}
-		for i := 1; i <= 20; i++ {
-			cid := [10]int{}
-			// this order isn't actually correct to the official server
-			for j := 1; j <= 9; j++ {
-				cid[j] = gamedata.Member[j+100*((i-1)%3)].MemberInit.SuitMasterID
-			}
-			liveDeck := model.UserLiveDeck{
-				UserID:         userID,
-				UserLiveDeckID: i,
-				CardMasterID1:  cid[1],
-				CardMasterID2:  cid[2],
-				CardMasterID3:  cid[3],
-				CardMasterID4:  cid[4],
-				CardMasterID5:  cid[5],
-				CardMasterID6:  cid[6],
-				CardMasterID7:  cid[7],
-				CardMasterID8:  cid[8],
-				CardMasterID9:  cid[9],
-				SuitMasterID1:  cid[1],
-				SuitMasterID2:  cid[2],
-				SuitMasterID3:  cid[3],
-				SuitMasterID4:  cid[4],
-				SuitMasterID5:  cid[5],
-				SuitMasterID6:  cid[6],
-				SuitMasterID7:  cid[7],
-				SuitMasterID8:  cid[8],
-				SuitMasterID9:  cid[9],
-			}
-			liveDeck.Name.DotUnderText = fmt.Sprintf(dictionary.Resolve("k.m_sorter_deck_live")+" %d", i)
-			liveDecks = append(liveDecks, liveDeck)
-			for j := 1; j <= 3; j++ {
-				liveParty := model.UserLiveParty{
-					UserID:         userID,
-					PartyID:        i*100 + j,
-					UserLiveDeckID: i,
-					CardMasterID1:  cid[(j-1)*3+1],
-					CardMasterID2:  cid[(j-1)*3+2],
-					CardMasterID3:  cid[(j-1)*3+3],
+		for a := 0; a <= 10000; a += 10000 { // 10000... are DLP formations
+			for b := 1; b <= 20; b++ {
+				i := a + b
+				cid := [10]int{}
+				// this order isn't actually correct to the official server
+				for j := 1; j <= 9; j++ {
+					cid[j] = gamedata.Member[j+100*((i-1)%3)].MemberInit.SuitMasterID
 				}
-				liveParty.IconMasterID, liveParty.Name.DotUnderText = gamedata.
-					GetLivePartyInfoByCardMasterIDs(liveParty.CardMasterID1, liveParty.CardMasterID2, liveParty.CardMasterID3)
-				liveParties = append(liveParties, liveParty)
+				liveDeck := model.UserLiveDeck{
+					UserID:         userID,
+					UserLiveDeckID: i,
+					CardMasterID1:  cid[1],
+					CardMasterID2:  cid[2],
+					CardMasterID3:  cid[3],
+					CardMasterID4:  cid[4],
+					CardMasterID5:  cid[5],
+					CardMasterID6:  cid[6],
+					CardMasterID7:  cid[7],
+					CardMasterID8:  cid[8],
+					CardMasterID9:  cid[9],
+					SuitMasterID1:  cid[1],
+					SuitMasterID2:  cid[2],
+					SuitMasterID3:  cid[3],
+					SuitMasterID4:  cid[4],
+					SuitMasterID5:  cid[5],
+					SuitMasterID6:  cid[6],
+					SuitMasterID7:  cid[7],
+					SuitMasterID8:  cid[8],
+					SuitMasterID9:  cid[9],
+				}
+				liveDeck.Name.DotUnderText = fmt.Sprintf(dictionary.Resolve("k.m_sorter_deck_live")+" %d", i)
+				liveDecks = append(liveDecks, liveDeck)
+				for j := 1; j <= 3; j++ {
+					liveParty := model.UserLiveParty{
+						UserID:         userID,
+						PartyID:        i*100 + j,
+						UserLiveDeckID: i,
+						CardMasterID1:  cid[(j-1)*3+1],
+						CardMasterID2:  cid[(j-1)*3+2],
+						CardMasterID3:  cid[(j-1)*3+3],
+					}
+					liveParty.IconMasterID, liveParty.Name.DotUnderText = gamedata.
+						GetLivePartyInfoByCardMasterIDs(liveParty.CardMasterID1, liveParty.CardMasterID2, liveParty.CardMasterID3)
+					liveParties = append(liveParties, liveParty)
+				}
 			}
 		}
 		session.InsertLiveDecks(liveDecks)

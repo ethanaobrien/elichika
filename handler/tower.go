@@ -132,6 +132,9 @@ func RecoveryTowerCardUsed(ctx *gin.Context) {
 	userID := ctx.GetInt("user_id")
 	session := userdata.GetSession(ctx, userID)
 	defer session.Close()
+	gamedata := ctx.MustGet("gamedata").(*gamedata.Gamedata)
+
+	tower := gamedata.Tower[req.TowerID]
 
 	for _, cardMasterID := range req.CardMasterIDs {
 		cardUsedCount := session.GetUserTowerCardUsed(req.TowerID, cardMasterID)
@@ -140,11 +143,22 @@ func RecoveryTowerCardUsed(ctx *gin.Context) {
 		session.UpdateUserTowerCardUsed(cardUsedCount)
 	}
 	// remove the item
-	session.RemoveResource(model.Content{
-		ContentType:   enum.ContentTypeRecoveryTowerCardUsedCount,
-		ContentID:     24001,
-		ContentAmount: int64(len(req.CardMasterIDs)),
-	})
+	has := session.GetUserResource(enum.ContentTypeRecoveryTowerCardUsedCount, 24001).Content.ContentAmount
+	if has >= int64(len(req.CardMasterIDs)) {
+		session.RemoveResource(model.Content{
+			ContentType:   enum.ContentTypeRecoveryTowerCardUsedCount,
+			ContentID:     24001,
+			ContentAmount: int64(len(req.CardMasterIDs)),
+		})
+	} else {
+		session.RemoveResource(model.Content{
+			ContentType:   enum.ContentTypeRecoveryTowerCardUsedCount,
+			ContentID:     24001,
+			ContentAmount: has,
+		})
+		session.RemoveSnsCoin((int64(len(req.CardMasterIDs)) - has) * int64(tower.RecoverCostBySnsCoin))
+
+	}
 	session.Finalize("", "dummy")
 	respObj := response.RecoveryTowerCardUsedResponse{
 		TowerCardUsedCountRows: session.GetUserTowerCardUsedList(req.TowerID),
