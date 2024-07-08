@@ -44,6 +44,9 @@ RUN git clone https://github.com/arina999999997/harasho assets --depth 1
 COPY --from=builder /elichika/webui/ /root/elichika/webui/
 RUN rm -rf webui/*.go && rm -rf webui/*/*.go
 
+COPY --from=builder /elichika/publickey.pem /root/elichika/publickey.pem
+COPY --from=builder /elichika/privatekey.pem /root/elichika/privatekey.pem
+
 ARG folder="server init jsons"
 COPY --from=builder /elichika/${folder}/ /root/elichika/${folder}/
 
